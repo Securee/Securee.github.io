@@ -11,9 +11,9 @@ var x=document.getElementById("demo");
 function getLocation()
 {
    var queryAppInformation_parameters = "{\"data\":{\"apkId\":\"com.whatsapp\"}}";
-   _dsbridge.call("download.queryAppInformation",queryAppInformation_parameters);
+   window._dsbridge.call("download.queryAppInformation",queryAppInformation_parameters);
    var downloadButtonOnClick_parameters = "{\"data\":{\"packageName\":\"com.whatsapp\"}}";
-   _dsbridge.call("download.downloadButtonOnClick",downloadButtonOnClick_parameters)
+   window._dsbridge.call("download.downloadButtonOnClick",downloadButtonOnClick_parameters)
 }
 </script>
 </body>
