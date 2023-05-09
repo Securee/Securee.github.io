@@ -186,6 +186,96 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2023/05/09/userfaultdf-forbid-unprivileged-users/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="冷霜飞">
+      <meta itemprop="description" content="秋阴不敌霜飞晚，留得残荷听雨声">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="冷霜飞">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/05/09/userfaultdf-forbid-unprivileged-users/" class="post-title-link" itemprop="url">userfaultfd默认禁止非特权用户调用</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-05-09 16:10:37 / 修改时间：16:36:31" itemprop="dateCreated datePublished" datetime="2023-05-09T16:10:37+08:00">2023-05-09</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/" itemprop="url" rel="index"><span itemprop="name">漏洞利用</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>436</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="userfaultfd技术"><a href="#userfaultfd技术" class="headerlink" title="userfaultfd技术"></a>userfaultfd技术</h2><p>userfaultfd提供给用户处理缺页异常的一个正常功能，最开始是用于虚拟机迁移场景。但后来不断被攻击者用于漏洞的利用：当发生page fault的时候，内核会暂停处理，等待用户对userfaultfd的回调处理完毕后再进行往下执行，利用这个暂停，攻击者就可以提高类似UAF的漏洞利用。因为UAF通常是多线程环境下产生的，为了稳定利用漏洞，攻击者需要在free之后，used之前替换目标的内存，利用suserfaultfd技术可以比较容易实现这一点。具体可以参考<a target="_blank" rel="noopener" href="http://brieflyx.me/2020/linux-tools/userfaultfd-internals/">Linux Kernel Userfaultfd 内部机制探究</a></p>
+<h2 id="userfaultfd限制"><a href="#userfaultfd限制" class="headerlink" title="userfaultfd限制"></a>userfaultfd限制</h2><p>在2019年，有人提交了一个<a target="_blank" rel="noopener" href="https://lwn.net/Articles/782745/">补丁</a>对userfaultfd的使用进行了an限制</p>
+<img src="/2023/05/09/userfaultdf-forbid-unprivileged-users/userfaultfd_unprivileaged_users.png" class title="userfaultfd限制">
+<p>因此，在我们的漏洞利用中，建议先通过命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /proc/sys/vm/unprivileged_userfaultfd</span><br></pre></td></tr></table></figure>
+
+<p>检查是否允许非特权用户调用userfaultfd</p>
+<img src="/2023/05/09/userfaultdf-forbid-unprivileged-users/userfaultfd_disable.png" class title="userfaultfd禁用">
+<p>0表示禁用，这种情况下，只能通过其它方式进行漏洞利用了。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2023/04/26/bluetooth-fuzz/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -217,7 +307,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-04-27 14:45:12" itemprop="dateModified" datetime="2023-04-27T14:45:12+08:00">2023-04-27</time>
+                <time title="修改时间：2023-05-09 16:28:40" itemprop="dateModified" datetime="2023-05-09T16:28:40+08:00">2023-05-09</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -235,7 +325,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>3.2k</span>
+              <span>3.3k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -304,6 +394,7 @@
 <img src="/2023/04/26/bluetooth-fuzz/classic_bluetooth_bt_fuzzer_demo_run.png" class title="运行定制demo">
 
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>利用ESP开发板和exploit框架，还可以定制各种协议的fuzz，而不仅限于BRAKTOOTH提供的LMP协议。由于蓝牙的规范极其复杂，而各个蓝牙设备厂商都是根据自己对蓝牙规范的理解进行开发的，所以还是可能出现各种各样的漏洞，未来仍然是一个值得继续关注投入的领域。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>1 <a target="_blank" rel="noopener" href="https://asset-group.github.io/disclosures/braktooth/">BRAKTOOTH: Causing Havoc on Bluetooth Link Manager</a><br>2 <a target="_blank" rel="noopener" href="https://evilpan.com/2021/07/10/bluetooth-sec/">蓝牙安全与攻击案例分析</a></p>
 
       
     </div>
@@ -588,20 +679,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-count">4</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-count">3</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -649,7 +740,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">8k</span>
+    <span title="站点总字数">9k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
