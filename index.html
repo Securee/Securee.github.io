@@ -211,7 +211,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2023-05-30 10:12:58 / 修改时间：11:50:46" itemprop="dateCreated datePublished" datetime="2023-05-30T10:12:58+08:00">2023-05-30</time>
+              <time title="创建时间：2023-05-30 10:12:58 / 修改时间：11:52:23" itemprop="dateCreated datePublished" datetime="2023-05-30T10:12:58+08:00">2023-05-30</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -248,7 +248,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="进入trustzone安全世界"><a href="#进入trustzone安全世界" class="headerlink" title="进入trustzone安全世界"></a>进入trustzone安全世界</h2><p>最近在尝试寻找提权对漏洞，发现了一个比较有意思的博客：<a target="_blank" rel="noopener" href="https://tamirzb.com/attacking-android-kernel-using-qualcomm-trustzone">通过高通的trustzone攻击并获得手机的root权限</a>，简单来说，就是攻击者具有了Android侧的system权限（这通常不会是太大的问题，因为业界已经暴露了很多可以获得system权限的漏洞，比如Parcel mismatch系列，也即是反序列化漏洞），然后利用system权限调用TEE上的TA（很多博客也将TA叫做trustlet，含义都一样，都是表示运行在安全世界TEE内核之上的应用）的任意物理地址读写，从而获得Android侧的root权限。</p>
+          <h2 id="进入trustzone安全世界"><a href="#进入trustzone安全世界" class="headerlink" title="进入trustzone安全世界"></a>进入trustzone安全世界</h2><p>最近在尝试寻找提权的漏洞，发现了一个比较有意思的博客：<a target="_blank" rel="noopener" href="https://tamirzb.com/attacking-android-kernel-using-qualcomm-trustzone">通过高通的trustzone攻击并获得手机的root权限</a>，简单来说，就是攻击者具有了Android侧的system权限（这通常不会是太大的问题，因为业界已经暴露了很多可以获得system权限的漏洞，比如Parcel mismatch系列，也即是反序列化漏洞），然后利用system权限调用TEE上的TA（很多博客也将TA叫做trustlet，含义都一样，都是表示运行在安全世界TEE内核之上的应用）的任意物理地址读写，从而获得Android侧的root权限。</p>
 <p>这的确是一个新颖的思路，以前我们的攻击思路都是：先攻破android侧应用，提权到system权限，然后利用system攻击驱动，获得root权限，再根据root权限攻击安全世界的TA，最后通过TA攻击TEE内核，而以上博客的作者直接通过system攻击TA，反过来攻击获取android的root的权限。这其实是利用了安全世界可以读写物理内存的事实（安全世界虽然也有虚拟内存的说法，但其实虚拟内存仅仅是物理内存的一一对应的镜像）。</p>
 <p>有了这个思路，那么就可以开始安全世界的漏洞挖掘之旅了。</p>
 <h2 id="获取TA的二进制文件"><a href="#获取TA的二进制文件" class="headerlink" title="获取TA的二进制文件"></a>获取TA的二进制文件</h2><p>在大部分的情况下，我们是无法获得TA的源码的，因此，我们通常需要逆向分析来进行漏洞挖掘。<br>通常情况，TA的二进制文件都会存放在手机的vendor&#x2F;firmware，vendor&#x2F;firmware_mnt目录下：</p>
