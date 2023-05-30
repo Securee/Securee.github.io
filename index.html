@@ -186,6 +186,116 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2023/05/30/trustzone-security-reverse/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="冷霜飞">
+      <meta itemprop="description" content="秋阴不敌霜飞晚，留得残荷听雨声">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="冷霜飞">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/05/30/trustzone-security-reverse/" class="post-title-link" itemprop="url">trustzone安全系列之逆向TA逆向分析</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-05-30 10:12:58 / 修改时间：11:41:13" itemprop="dateCreated datePublished" datetime="2023-05-30T10:12:58+08:00">2023-05-30</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%80%86%E5%90%91%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">逆向分析</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="进入trustzone安全世界"><a href="#进入trustzone安全世界" class="headerlink" title="进入trustzone安全世界"></a>进入trustzone安全世界</h2><p>最近在尝试寻找提权对漏洞，发现了一个比较有意思的博客：<a target="_blank" rel="noopener" href="https://tamirzb.com/attacking-android-kernel-using-qualcomm-trustzone">通过高通的trustzoneg攻击并获得手机的root权限</a>，简单来说，就是攻击者具有了Android侧的system权限（这通常不会是太大的问题，因为业界已经暴露了很多可以获得system权限对漏洞，比如Parcel mismatch序列，也即是反序列化漏洞），然后利用system权限调用TEE上的TA（很多博客也将TA叫做trustlet，含义都一样，都是表示运行在安全世界TEE内核之上的应用）的任意物理地址读写，从而获得oAndroid侧的root权限。</p>
+<p>这的确是一个新颖的思路，以前我们的攻击思路都是：先攻破android侧应用，提权到systemx权限，然后利用system攻击驱动，获得root权限，再根据root权限攻击安全世界对TA，最近通过TA攻击TEE内核，而以上博客对作者直接通过system攻击TA，反过来攻击获取android的root的权限。这其实是利用了安全世界可以读写物理内存的事实（安全世界虽然也有虚拟内存的说法，但其实虚拟内存仅仅是物理内存对镜像）。</p>
+<p>有了这个思路，那么就可以开始安全世界对漏洞挖掘之旅了。</p>
+<h2 id="获取TA的二进制文件"><a href="#获取TA的二进制文件" class="headerlink" title="获取TA的二进制文件"></a>获取TA的二进制文件</h2><p>在大部分的情况下，我们是无法获得TA的源码的，因此，我们通常需要逆向分析来进行漏洞挖掘。<br>通常情况，TA的二进制文件都会存放在手机的vendor&#x2F;firmware，vendor&#x2F;firmware_mnt目录下：</p>
+<img src="/2023/05/30/trustzone-security-reverse/pixel4xl_TAs.png" class title="pixel4XL_TAs">
+<p>但是，对于非root手机，是无法访问vendor&#x2F;firmware_mnt目录的，如果需要一个完备的TA二进制，建议使用<a target="_blank" rel="noopener" href="https://github.com/topjohnwu/Magisk">Magisk</a>工具获得手机的root权限（这其实与我们对研究目标似乎有点冲突，毕竟我们对目标本来就是为了获得root权限，但这里我们仅是为了获得分析对象的二进制：假设攻击者总能获得TA的二进制文件是合理的，比如升级包提权，利用其他漏洞dump手机内存等）。<br>知道了TA的位置后，就可以使用adb pull将TA的二进制文件拉取到本地，以便后续的分析。</p>
+<h2 id="获取TA的elf格式文件"><a href="#获取TA的elf格式文件" class="headerlink" title="获取TA的elf格式文件"></a>获取TA的elf格式文件</h2><p>在上节中，我们拉取了TA的二进制文件，但是发现很多文件都是XXX.b01,XXX.b02,…,XXX.mdt，这其实就是高通TA的一种存储方式：</p>
+<img src="/2023/05/30/trustzone-security-reverse/trustlet_structures.png" class title="TA structure">
+<p>我们可以参考<a target="_blank" rel="noopener" href="https://github.com/pandasauce/unify_trustlet/blob/master/unify_trustlet.py">unify_trustlet</a>提取elf文件</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> struct</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    <span class="comment"># Reading the arguments</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(sys.argv) != <span class="number">5</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;USAGE: &lt;BITNESS&gt; &lt;TRUSTLET_DIR&gt; &lt;TRUSTLET_NAME&gt; &lt;OUTPUT_FILE_PATH&gt;&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">    bitness = <span class="built_in">int</span>(sys.argv[<span class="number">1</span>])</span><br><span class="line">    trustlet_dir = sys.argv[<span class="number">2</span>]</span><br><span class="line">    trustlet_name = sys.argv[<span class="number">3</span>]</span><br><span class="line">    output_file_path = sys.argv[<span class="number">4</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (bitness == <span class="number">64</span>):</span><br><span class="line">        ELF_HEADER_SIZE = <span class="number">0x40</span></span><br><span class="line">        E_PHNUM_OFFSET = <span class="number">0x38</span></span><br><span class="line">        PHDR_SIZE = <span class="number">0x38</span></span><br><span class="line">        P_FILESZ_OFFSET = <span class="number">0x20</span></span><br><span class="line">        P_OFFSET_OFFSET = <span class="number">0x8</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        ELF_HEADER_SIZE = <span class="number">0x34</span></span><br><span class="line">        E_PHNUM_OFFSET = <span class="number">0x2C</span></span><br><span class="line">        PHDR_SIZE = <span class="number">0x20</span></span><br><span class="line">        P_FILESZ_OFFSET = <span class="number">0x10</span></span><br><span class="line">        P_OFFSET_OFFSET = <span class="number">0x4</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># Reading the ELF header from the &quot;.mdt&quot; file</span></span><br><span class="line">    mdt = <span class="built_in">open</span>(os.path.join(trustlet_dir, <span class="string">&quot;%s.mdt&quot;</span> % trustlet_name), <span class="string">&quot;rb&quot;</span>)</span><br><span class="line">    elf_header = mdt.read(ELF_HEADER_SIZE)</span><br><span class="line">    phnum = struct.unpack(<span class="string">&quot;&lt;H&quot;</span>, elf_header[E_PHNUM_OFFSET:E_PHNUM_OFFSET + <span class="number">2</span>])[<span class="number">0</span>]</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;[+] Found %d program headers&quot;</span> % phnum)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Reading each of the program headers and copying the relevant chunk</span></span><br><span class="line">    output_file = <span class="built_in">open</span>(output_file_path, <span class="string">&#x27;wb&#x27;</span>)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, phnum):</span><br><span class="line"></span><br><span class="line">        <span class="comment"># Reading the PHDR</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;[+] Reading PHDR %d&quot;</span> % i)</span><br><span class="line">        phdr = mdt.read(PHDR_SIZE)</span><br><span class="line">        p_filesz = struct.unpack(<span class="string">&quot;&lt;I&quot;</span>, phdr[P_FILESZ_OFFSET:P_FILESZ_OFFSET + <span class="number">4</span>])[<span class="number">0</span>]</span><br><span class="line">        p_offset = struct.unpack(<span class="string">&quot;&lt;I&quot;</span>, phdr[P_OFFSET_OFFSET:P_OFFSET_OFFSET + <span class="number">4</span>])[<span class="number">0</span>]</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;[+] Size: 0x%08X, Offset: 0x%08X&quot;</span> % (p_filesz, p_offset))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> p_filesz == <span class="number">0</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;[+] Empty block, skipping&quot;</span>)</span><br><span class="line">            <span class="keyword">continue</span>  <span class="comment"># There&#x27;s no backing block</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># Copying out the data in the block</span></span><br><span class="line">        block = <span class="built_in">open</span>(os.path.join(trustlet_dir, <span class="string">&quot;%s.b%02d&quot;</span> % (trustlet_name, i)), <span class="string">&#x27;rb&#x27;</span>).read()</span><br><span class="line">        output_file.seek(p_offset, <span class="number">0</span>)</span><br><span class="line">        output_file.write(block)</span><br><span class="line"></span><br><span class="line">    mdt.close()</span><br><span class="line">    output_file.close()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+
+<h2 id="开始逆向分析"><a href="#开始逆向分析" class="headerlink" title="开始逆向分析"></a>开始逆向分析</h2><p>如果以上一切顺利的话，就可以正常获得了TA的elf文件，然后，可以上IDA了。<br>我们非常关心GP API：TA_InvokeCommandEntryPoint的实现，这是android的可以调用TA的一个关键接口</p>
+<img src="/2023/05/30/trustzone-security-reverse/TA_interface.png" class title="TA interface">
+<p>但是，GP的<a target="_blank" rel="noopener" href="https://globalplatform.org/wp-content/uploads/2018/06/GPD_TEE_Internal_Core_API_Specification_v1.1.2.50_PublicReview.pdf">文档</a>得知：</p>
+<img src="/2023/05/30/trustzone-security-reverse/GPTA_interface.png" class title="GP TA interface">
+<p>该接口的参数中，最重要的是最后一个参数：TEE_Params</p>
+<img src="/2023/05/30/trustzone-security-reverse/TEE_params.png" class title="TEE_params">
+<p>所以，我们希望IDA能够解析这个结构体。<br>那么，可以这样在IDA里添加这个自定义的结构体<br>1、View –&gt; Open subviews –&gt;Local types<br>2、右键，选择Insert<br>   <img src="/2023/05/30/trustzone-security-reverse/localtype_insert.png" class title="insert local types"><br>3、在弹出的对话框输入：</p>
+   <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">pragma</span> pack(8)</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">union</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">    &#123;</span></span><br><span class="line">        <span class="type">void</span>* buffer;</span><br><span class="line">        <span class="type">unsigned</span> <span class="type">long</span> <span class="type">long</span> size;</span><br><span class="line">    &#125;memref;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">    &#123;</span></span><br><span class="line">        <span class="type">uint32_t</span> a;</span><br><span class="line">        <span class="type">uint32_t</span> b;</span><br><span class="line">    &#125;value;</span><br><span class="line">&#125;TEE_Param;</span><br></pre></td></tr></table></figure>
+
+<img src="/2023/05/30/trustzone-security-reverse/customize_tee_param.png" class title="customize tee_param">
+<p>4、在cLocal types中选择刚才定义的结构体，右键选择Synchronize to idb</p>
+<img src="/2023/05/30/trustzone-security-reverse/Synchronize_to_idb.png" class title="Synchronize to idb">
+<p>5、回到sub_1180,选择最后一个参数的类型——int64,右键选择convert to struct</p>
+<img src="/2023/05/30/trustzone-security-reverse/convert_to_struct.png" class title="convert_to_struct">
+<p>弹出的对话框选择TEE_Param<br>其他函数也是这样修改参数类型<br>最后，就可以比较容易分析入参是如何传入并被处理的：</p>
+<img src="/2023/05/30/trustzone-security-reverse/convert_result.png" class title="convert_to_struct">
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>以上仅仅是进入etrustzon安全世界漏洞挖掘的一小步而已，但万事开头难，也总算打开了头，后续就可以参考TEE的漏洞模式进行挖掘了。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2023/05/17/get-apks-python-script/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -858,20 +968,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">7</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-count">12</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -919,12 +1029,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">15k</span>
+    <span title="站点总字数">18k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">14 分钟</span>
+    <span title="站点阅读时长">17 分钟</span>
 </div>
 
         
