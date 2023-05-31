@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>pixel 7/pro的root过程</title>
+      <link href="/2023/05/31/root-pixel7/"/>
+      <url>/2023/05/31/root-pixel7/</url>
+      
+        <content type="html"><![CDATA[<h2 id="需要root-pixel-7-x2F-pro的背景"><a href="#需要root-pixel-7-x2F-pro的背景" class="headerlink" title="需要root pixel 7&#x2F;pro的背景"></a>需要root pixel 7&#x2F;pro的背景</h2><p>在很多情况下，我们可能需要获取pixel 7&#x2F;pro的root权限，以便获取普通shell权限无法获取得到的信息，比如TA的二进制文件，修改系统配置，切换用户权限进行测试等等。<br>以下是记录一下root的过程，其实没有什么技术含量，烂笔头好过好脑袋而已。</p><h2 id="解锁OEM"><a href="#解锁OEM" class="headerlink" title="解锁OEM"></a>解锁OEM</h2><p>1、确定打开了开发者模式，并且OEM unlocking 处于打开状态<br>2、adb 授权后，通过adb reboot bootloader，进入fastboot模式<br>3、进入fastboot模式后，输入：<br>   fastboot flashing unlock<br>   在这个过程，可能会遇到一个错误：<br>   <img src="/2023/05/31/root-pixel7/no-permission.png" class title="no-permission"><br>   这种情况下，可能是fastboot不是通过apt安装，而是通过环境变量执行了自行下载的fastboot路径。<br>   解决方法：</p>   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo chown root:root fastboot</span><br><span class="line">sudo chmod +s fastboot</span><br></pre></td></tr></table></figure><h2 id="安装Magisk"><a href="#安装Magisk" class="headerlink" title="安装Magisk"></a>安装Magisk</h2><p>我们的目的是通过Magisk来获取root权限（好处是可以随时撤销授权），为了安全着想，建议通过<a href="https://github.com/topjohnwu/Magisk/releases">github官网</a>上下载最新版本的apk。<br>然后通过adb install直接安装</p><h2 id="获取init-boot-img文件"><a href="#获取init-boot-img文件" class="headerlink" title="获取init_boot.img文件"></a>获取init_boot.img文件</h2><p>从android 13开始，通过Magisk获取root权限所使用的引导文件不再是boot.img，而是init_boot.img<br>可以通过google的<a href="https://developers.google.com/android/images#cheetah">官网</a>下载相应版本的zip包。<br>什么是相应版本？<br>通过Setting &gt; About phone &gt; Build number可以看到当前对版本构建编号，然后在以上连接找对应对连接，比如TQ2A.230505.002，如果选择错版本，可能会变砖哦。</p><h2 id="push-init-boot-img到手机上"><a href="#push-init-boot-img到手机上" class="headerlink" title="push init_boot.img到手机上"></a>push init_boot.img到手机上</h2><p>解压上一步骤的压缩包（解压两次，直到找到init_boot.img文件），然后通过adb push到手机上，比如：<br>adb push init_boot.img &#x2F;sdcard&#x2F;Download</p><h2 id="通过Magisk获取init-boot-img的补丁镜像文件"><a href="#通过Magisk获取init-boot-img的补丁镜像文件" class="headerlink" title="通过Magisk获取init_boot.img的补丁镜像文件"></a>通过Magisk获取init_boot.img的补丁镜像文件</h2><p>在Magisk界面上，选择Install，然后选择刚上传的init_boot.img文件，开始patch<br>最后会在相同目录下产生一个patch的镜像文件，通过adb pull拉取回本地</p><h2 id="刷补丁镜像"><a href="#刷补丁镜像" class="headerlink" title="刷补丁镜像"></a>刷补丁镜像</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">adb reboot bootloader</span><br><span class="line">fastboot flash init_boot_a xxx_patch.img</span><br><span class="line">fastboot flash init_boot_b xxx_patch.img</span><br><span class="line">fastboot reboot</span><br></pre></td></tr></table></figure><h2 id="获取root权限"><a href="#获取root权限" class="headerlink" title="获取root权限"></a>获取root权限</h2><p>当手机重启后，输入：</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">adb shell</span><br><span class="line">su</span><br></pre></td></tr></table></figure><p>输入su命令后，Magisk界面上会弹出授权请求对话框，点击grant即可。</p><img src="/2023/05/31/root-pixel7/root.png" class title="root">]]></content>
+      
+      
+      <categories>
+          
+          <category> 技术技巧 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> root </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>trustzone安全系列之TA逆向分析</title>
       <link href="/2023/05/30/trustzone-security-reverse/"/>
       <url>/2023/05/30/trustzone-security-reverse/</url>
