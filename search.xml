@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>不恰当动态授权grantUriPermission导致的漏洞</title>
+      <link href="/2023/06/12/grantUriPermission-attack/"/>
+      <url>/2023/06/12/grantUriPermission-attack/</url>
+      
+        <content type="html"><![CDATA[<h2 id="Android的应用沙盒"><a href="#Android的应用沙盒" class="headerlink" title="Android的应用沙盒"></a>Android的应用沙盒</h2><p>在Android操作系统中，每一个应用都会在安装的时候分配一个独一无二的用户ID–UID，然后每个应用都会在各自的进程中运行。Android利用分配给应用的UID设置一个内核级别的应用沙盒（所以，如果能获得内核权限，应用沙盒机制自然就失效了），内核利用Linux安全机制（比如DAC，MAC）对应用和系统之间进行保护，默认应用之间不能相互访问。<br>详细可以看Android官网上的<a href="https://source.android.com/docs/security/app-sandbox?hl=zh-cn">介绍</a></p><img src="/2023/06/12/grantUriPermission-attack/android-sandbox.png" class title="android-sandbox"><h2 id="Android应用之间的文件共享"><a href="#Android应用之间的文件共享" class="headerlink" title="Android应用之间的文件共享"></a>Android应用之间的文件共享</h2><p>但，毫无疑问，应用之间必然存在文件共享访问的需求。比如A应用请求图库打开一张图片，请求播放器播放一个视频文件等等。在这种情况下，授权应用需要将文件–通常对应一个Uri的读权限或者写权限授予被授权的应用。根据最小授权的原则，授权应用应该仅授予目标应用相应的权限（读或者写），并且在事务完成后取消授权。<br>因此，Android在安全最佳实践中，提供的建议<a href="https://developer.android.com/topic/security/best-practices#java">如下</a>:</p><img src="/2023/06/12/grantUriPermission-attack/granturipermission-best_practices.png" class title="android-grantUriPermission-best-practices"><p>原因是通过Intent的addFlag设置的读写权限属于一次性授权，事务完成后授权自动取消，从而保证了最小授权。</p><h2 id="grantUriPermission漏洞模式"><a href="#grantUriPermission漏洞模式" class="headerlink" title="grantUriPermission漏洞模式"></a>grantUriPermission漏洞模式</h2><p>与使用Intent的addFlags一次性授权相对应的是使用<a href="https://developer.android.com/reference/android/content/Context#grantUriPermission(java.lang.String,%20android.net.Uri,%20int)">grantUriPermission</a>函数进行持久授权</p><img src="/2023/06/12/grantUriPermission-attack/android-grantUriPermission.png" class title="android-grantUriPermission"><p>第一个参数是被授权的应用的包名，第二个参数是被授权的文件的Uri，第三个参数是具体的授权方式：读，写，同时同时具有读写权限。<br>从函数的参数可以看到，如果攻击者可以控制第一个参数，那么就可以获得了文件的读写权限。这可能包括以下几种情况：<br>1）包名是从外部可被攻击者控制的输入传入，比如导出的组件（四大组件），webView等<br>   进一步可能存在两种n情况：1是包名完全从外部可控输入，2是包名的不完整校验导致绕过。比如使用startWith，endWith，contain等不安全的字符校验。<br>2）授权的包名当前系统中不存在，因此攻击者可以伪造该包名，从而获得文件的读写权限。<br>3）最常见的一种，就是通过隐式Intent查询当前系统满足能处理该Intent的包，然后授予这些应用授权。<br>   <img src="/2023/06/12/grantUriPermission-attack/grantUriPermission-bug-model.png" class title="grantUriPermission-bug"><br>   这种授权方式，明显属于授权范围过大。攻击者只需要定义一个Activity，然后Intent-filter设置Action是android.intent.action.SEND就可以获得文件的读写权限。<br>   虽然，这种情况下，通常需要用户交互，而且Uri获取的确困难，因此CVSS打分通常无法达到7.0以上，仅属于一般问题。但是，如果Uri是有规律，可预测的（哪怕是遍历沙盒的文件），CVSS打分也将达到7.0以上，属于严重安全问题。</p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>对于Android开发而言，不建议使用grantUriPermission进行授权，推荐使用Intent的addFlags进行一次性授权，防止出现授权过大的安全风险。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 漏洞模式 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> grantUriPermission </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>pixel 7/pro的root过程</title>
       <link href="/2023/05/31/root-pixel7/"/>
       <url>/2023/05/31/root-pixel7/</url>

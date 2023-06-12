@@ -20,20 +20,25 @@
     var CONFIG = {"hostname":"lengshuangfei.top","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="背景在移动终端的漏洞挖掘中，通常需要对系统的APK进行逆向分析，而在使用jadx、GDA进行逆向分析之前，首先得将APK的安装包拖到本地。 利用脚本一键获取手机中的APK安装包前提条件：    不管是Window还是Linux系统，首先确保adb工具已经安装并且在系统环境变量中。如果是首次使用adb连接手机，确认手机开启了开发者调试模式并且进行了连接授权。 12345678910111213141">
+  <meta name="description" content="Android的应用沙盒在Android操作系统中，每一个应用都会在安装的时候分配一个独一无二的用户ID–UID，然后每个应用都会在各自的进程中运行。Android利用分配给应用的UID设置一个内核级别的应用沙盒（所以，如果能获得内核权限，应用沙盒机制自然就失效了），内核利用Linux安全机制（比如DAC，MAC）对应用和系统之间进行保护，默认应用之间不能相互访问。详细可以看Android官网上的">
 <meta property="og:type" content="article">
-<meta property="og:title" content="通过python脚本一键获取手机中的APK">
-<meta property="og:url" content="https://lengshuangfei.top/2023/05/17/get-apks-python-script/index.html">
+<meta property="og:title" content="不恰当动态授权grantUriPermission导致的漏洞">
+<meta property="og:url" content="https://lengshuangfei.top/2023/06/12/grantUriPermission-attack/index.html">
 <meta property="og:site_name" content="冷霜飞">
-<meta property="og:description" content="背景在移动终端的漏洞挖掘中，通常需要对系统的APK进行逆向分析，而在使用jadx、GDA进行逆向分析之前，首先得将APK的安装包拖到本地。 利用脚本一键获取手机中的APK安装包前提条件：    不管是Window还是Linux系统，首先确保adb工具已经安装并且在系统环境变量中。如果是首次使用adb连接手机，确认手机开启了开发者调试模式并且进行了连接授权。 12345678910111213141">
+<meta property="og:description" content="Android的应用沙盒在Android操作系统中，每一个应用都会在安装的时候分配一个独一无二的用户ID–UID，然后每个应用都会在各自的进程中运行。Android利用分配给应用的UID设置一个内核级别的应用沙盒（所以，如果能获得内核权限，应用沙盒机制自然就失效了），内核利用Linux安全机制（比如DAC，MAC）对应用和系统之间进行保护，默认应用之间不能相互访问。详细可以看Android官网上的">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-05-17T12:01:28.000Z">
-<meta property="article:modified_time" content="2023-05-17T12:13:37.443Z">
+<meta property="og:image" content="https://lengshuangfei.top/2023/06/12/grantUriPermission-attack/android-sandbox.png">
+<meta property="og:image" content="https://lengshuangfei.top/2023/06/12/grantUriPermission-attack/granturipermission-best_practices.png">
+<meta property="og:image" content="https://lengshuangfei.top/2023/06/12/grantUriPermission-attack/android-grantUriPermission.png">
+<meta property="og:image" content="https://lengshuangfei.top/2023/06/12/grantUriPermission-attack/grantUriPermission-bug-model.png">
+<meta property="article:published_time" content="2023-06-12T06:35:27.000Z">
+<meta property="article:modified_time" content="2023-06-12T07:48:45.257Z">
 <meta property="article:author" content="冷霜飞">
-<meta property="article:tag" content="python">
+<meta property="article:tag" content="grantUriPermission">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://lengshuangfei.top/2023/06/12/grantUriPermission-attack/android-sandbox.png">
 
-<link rel="canonical" href="https://lengshuangfei.top/2023/05/17/get-apks-python-script/">
+<link rel="canonical" href="https://lengshuangfei.top/2023/06/12/grantUriPermission-attack/">
 
 
 <script id="page-configurations">
@@ -46,7 +51,7 @@
   };
 </script>
 
-  <title>通过python脚本一键获取手机中的APK | 冷霜飞</title>
+  <title>不恰当动态授权grantUriPermission导致的漏洞 | 冷霜飞</title>
   
 
 
@@ -190,7 +195,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2023/05/17/get-apks-python-script/">
+    <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2023/06/12/grantUriPermission-attack/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -203,7 +208,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          通过python脚本一键获取手机中的APK
+          不恰当动态授权grantUriPermission导致的漏洞
         </h1>
 
         <div class="post-meta">
@@ -214,7 +219,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2023-05-17 20:01:28 / 修改时间：20:13:37" itemprop="dateCreated datePublished" datetime="2023-05-17T20:01:28+08:00">2023-05-17</time>
+              <time title="创建时间：2023-06-12 14:35:27 / 修改时间：15:48:45" itemprop="dateCreated datePublished" datetime="2023-06-12T14:35:27+08:00">2023-06-12</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -222,7 +227,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%B7%A5%E5%85%B7%E8%84%9A%E6%9C%AC/" itemprop="url" rel="index"><span itemprop="name">工具脚本</span></a>
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">漏洞模式</span></a>
                 </span>
             </span>
 
@@ -239,7 +244,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>1.3k</span>
+              <span>1.2k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -258,11 +263,16 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在移动终端的漏洞挖掘中，通常需要对系统的APK进行逆向分析，而在使用jadx、GDA进行逆向分析之前，首先得将APK的安装包拖到本地。</p>
-<h2 id="利用脚本一键获取手机中的APK安装包"><a href="#利用脚本一键获取手机中的APK安装包" class="headerlink" title="利用脚本一键获取手机中的APK安装包"></a>利用脚本一键获取手机中的APK安装包</h2><p>前提条件：<br>    不管是Window还是Linux系统，首先确保adb工具已经安装并且在系统环境变量中。如果是首次使用adb连接手机，确认手机开启了开发者调试模式并且进行了连接授权。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> subprocess</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">getAPKs</span>():</span><br><span class="line">    packages = subprocess.Popen(<span class="string">&#x27;adb shell pm list package -f&#x27;</span>, shell=<span class="literal">True</span>, stdout=subprocess.PIPE, stderr=subprocess.PIPE)</span><br><span class="line">    return_code = packages.poll()</span><br><span class="line">    package_list = []</span><br><span class="line">    <span class="keyword">while</span> return_code <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        line = packages.stdout.readline()</span><br><span class="line">        return_code = packages.poll()</span><br><span class="line">        line = line.strip()</span><br><span class="line">        <span class="keyword">if</span> line:</span><br><span class="line">            package_list.append(line)</span><br><span class="line">    <span class="keyword">return</span> package_list</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pull_apk_from_device</span>(<span class="params">package_list, out_dir</span>):</span><br><span class="line">    <span class="keyword">if</span> package_list <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">for</span> package <span class="keyword">in</span> package_list:</span><br><span class="line">            temp = package.decode(<span class="string">&#x27;utf-8&#x27;</span>).split(<span class="string">&#x27;:&#x27;</span>)[<span class="number">1</span>]</span><br><span class="line">            path = temp.rsplit(<span class="string">&#x27;=&#x27;</span>, <span class="number">1</span>)[<span class="number">0</span>]</span><br><span class="line">            package_name = temp.rsplit(<span class="string">&#x27;=&#x27;</span>, <span class="number">1</span>)[<span class="number">1</span>]</span><br><span class="line">            <span class="built_in">print</span>(path)</span><br><span class="line">            <span class="built_in">print</span>(package_name)</span><br><span class="line">            cmd = <span class="string">&quot;adb pull &quot;</span> + path + <span class="string">&quot; &quot;</span> + out_dir + <span class="string">&quot;//&quot;</span> + package_name + <span class="string">&quot;.apk&quot;</span></span><br><span class="line">            result = subprocess.Popen(cmd, shell=<span class="literal">True</span>, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()</span><br><span class="line">            <span class="built_in">print</span>(result)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Done&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># Press the green button in the gutter to run the script.</span></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    package_list = getAPKs()</span><br><span class="line">    pull_apk_from_device(package_list,<span class="string">&quot;/home/lzy/Pixel4XL_android13/APKs&quot;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+        <h2 id="Android的应用沙盒"><a href="#Android的应用沙盒" class="headerlink" title="Android的应用沙盒"></a>Android的应用沙盒</h2><p>在Android操作系统中，每一个应用都会在安装的时候分配一个独一无二的用户ID–UID，然后每个应用都会在各自的进程中运行。Android利用分配给应用的UID设置一个内核级别的应用沙盒（所以，如果能获得内核权限，应用沙盒机制自然就失效了），内核利用Linux安全机制（比如DAC，MAC）对应用和系统之间进行保护，默认应用之间不能相互访问。<br>详细可以看Android官网上的<a target="_blank" rel="noopener" href="https://source.android.com/docs/security/app-sandbox?hl=zh-cn">介绍</a></p>
+<img src="/2023/06/12/grantUriPermission-attack/android-sandbox.png" class title="android-sandbox">
 
-<p>在实际使用过程中，请将路径“&#x2F;home&#x2F;lzy&#x2F;Pixel4XL_android13&#x2F;APKs”替换为您实际使用对路径。</p>
+<h2 id="Android应用之间的文件共享"><a href="#Android应用之间的文件共享" class="headerlink" title="Android应用之间的文件共享"></a>Android应用之间的文件共享</h2><p>但，毫无疑问，应用之间必然存在文件共享访问的需求。比如A应用请求图库打开一张图片，请求播放器播放一个视频文件等等。在这种情况下，授权应用需要将文件–通常对应一个Uri的读权限或者写权限授予被授权的应用。根据最小授权的原则，授权应用应该仅授予目标应用相应的权限（读或者写），并且在事务完成后取消授权。<br>因此，Android在安全最佳实践中，提供的建议<a target="_blank" rel="noopener" href="https://developer.android.com/topic/security/best-practices#java">如下</a>:</p>
+<img src="/2023/06/12/grantUriPermission-attack/granturipermission-best_practices.png" class title="android-grantUriPermission-best-practices">
+<p>原因是通过Intent的addFlag设置的读写权限属于一次性授权，事务完成后授权自动取消，从而保证了最小授权。</p>
+<h2 id="grantUriPermission漏洞模式"><a href="#grantUriPermission漏洞模式" class="headerlink" title="grantUriPermission漏洞模式"></a>grantUriPermission漏洞模式</h2><p>与使用Intent的addFlags一次性授权相对应的是使用<a target="_blank" rel="noopener" href="https://developer.android.com/reference/android/content/Context#grantUriPermission(java.lang.String,%20android.net.Uri,%20int)">grantUriPermission</a>函数进行持久授权</p>
+<img src="/2023/06/12/grantUriPermission-attack/android-grantUriPermission.png" class title="android-grantUriPermission">
+<p>第一个参数是被授权的应用的包名，第二个参数是被授权的文件的Uri，第三个参数是具体的授权方式：读，写，同时同时具有读写权限。<br>从函数的参数可以看到，如果攻击者可以控制第一个参数，那么就可以获得了文件的读写权限。这可能包括以下几种情况：<br>1）包名是从外部可被攻击者控制的输入传入，比如导出的组件（四大组件），webView等<br>   进一步可能存在两种n情况：1是包名完全从外部可控输入，2是包名的不完整校验导致绕过。比如使用startWith，endWith，contain等不安全的字符校验。<br>2）授权的包名当前系统中不存在，因此攻击者可以伪造该包名，从而获得文件的读写权限。<br>3）最常见的一种，就是通过隐式Intent查询当前系统满足能处理该Intent的包，然后授予这些应用授权。<br>   <img src="/2023/06/12/grantUriPermission-attack/grantUriPermission-bug-model.png" class title="grantUriPermission-bug"><br>   这种授权方式，明显属于授权范围过大。攻击者只需要定义一个Activity，然后Intent-filter设置Action是android.intent.action.SEND就可以获得文件的读写权限。<br>   虽然，这种情况下，通常需要用户交互，而且Uri获取的确困难，因此CVSS打分通常无法达到7.0以上，仅属于一般问题。但是，如果Uri是有规律，可预测的（哪怕是遍历沙盒的文件），CVSS打分也将达到7.0以上，属于严重安全问题。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>对于Android开发而言，不建议使用grantUriPermission进行授权，推荐使用Intent的addFlags进行一次性授权，防止出现授权过大的安全风险。</p>
 
     </div>
 
@@ -278,7 +288,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://lengshuangfei.top/2023/05/17/get-apks-python-script/" title="通过python脚本一键获取手机中的APK">https://lengshuangfei.top/2023/05/17/get-apks-python-script/</a>
+    <a href="https://lengshuangfei.top/2023/06/12/grantUriPermission-attack/" title="不恰当动态授权grantUriPermission导致的漏洞">https://lengshuangfei.top/2023/06/12/grantUriPermission-attack/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -289,7 +299,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/python/" rel="tag"># python</a>
+              <a href="/tags/grantUriPermission/" rel="tag"># grantUriPermission</a>
           </div>
 
         
@@ -298,13 +308,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2023/05/16/Windows-namedpipe-attacksurface/" rel="prev" title="Window命名管道的新提权方式">
-      <i class="fa fa-chevron-left"></i> Window命名管道的新提权方式
+    <a href="/2023/05/31/root-pixel7/" rel="prev" title="pixel 7/pro的root过程">
+      <i class="fa fa-chevron-left"></i> pixel 7/pro的root过程
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2023/05/30/trustzone-security-reverse/" rel="next" title="trustzone安全系列之TA逆向分析">
-      trustzone安全系列之TA逆向分析 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -368,7 +375,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%A9%E7%94%A8%E8%84%9A%E6%9C%AC%E4%B8%80%E9%94%AE%E8%8E%B7%E5%8F%96%E6%89%8B%E6%9C%BA%E4%B8%AD%E7%9A%84APK%E5%AE%89%E8%A3%85%E5%8C%85"><span class="nav-number">2.</span> <span class="nav-text">利用脚本一键获取手机中的APK安装包</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Android%E7%9A%84%E5%BA%94%E7%94%A8%E6%B2%99%E7%9B%92"><span class="nav-number">1.</span> <span class="nav-text">Android的应用沙盒</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Android%E5%BA%94%E7%94%A8%E4%B9%8B%E9%97%B4%E7%9A%84%E6%96%87%E4%BB%B6%E5%85%B1%E4%BA%AB"><span class="nav-number">2.</span> <span class="nav-text">Android应用之间的文件共享</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#grantUriPermission%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.</span> <span class="nav-text">grantUriPermission漏洞模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
