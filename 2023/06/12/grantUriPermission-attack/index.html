@@ -32,7 +32,7 @@
 <meta property="og:image" content="https://lengshuangfei.top/2023/06/12/grantUriPermission-attack/android-grantUriPermission.png">
 <meta property="og:image" content="https://lengshuangfei.top/2023/06/12/grantUriPermission-attack/grantUriPermission-bug-model.png">
 <meta property="article:published_time" content="2023-06-12T06:35:27.000Z">
-<meta property="article:modified_time" content="2023-06-12T07:48:45.257Z">
+<meta property="article:modified_time" content="2023-06-13T08:40:50.342Z">
 <meta property="article:author" content="冷霜飞">
 <meta property="article:tag" content="grantUriPermission">
 <meta name="twitter:card" content="summary">
@@ -217,10 +217,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2023-06-12 14:35:27 / 修改时间：15:48:45" itemprop="dateCreated datePublished" datetime="2023-06-12T14:35:27+08:00">2023-06-12</time>
+              <time title="创建时间：2023-06-12 14:35:27" itemprop="dateCreated datePublished" datetime="2023-06-12T14:35:27+08:00">2023-06-12</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-06-13 16:40:50" itemprop="dateModified" datetime="2023-06-13T16:40:50+08:00">2023-06-13</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -271,7 +277,7 @@
 <p>原因是通过Intent的addFlag设置的读写权限属于一次性授权，事务完成后授权自动取消，从而保证了最小授权。</p>
 <h2 id="grantUriPermission漏洞模式"><a href="#grantUriPermission漏洞模式" class="headerlink" title="grantUriPermission漏洞模式"></a>grantUriPermission漏洞模式</h2><p>与使用Intent的addFlags一次性授权相对应的是使用<a target="_blank" rel="noopener" href="https://developer.android.com/reference/android/content/Context#grantUriPermission(java.lang.String,%20android.net.Uri,%20int)">grantUriPermission</a>函数进行持久授权</p>
 <img src="/2023/06/12/grantUriPermission-attack/android-grantUriPermission.png" class title="android-grantUriPermission">
-<p>第一个参数是被授权的应用的包名，第二个参数是被授权的文件的Uri，第三个参数是具体的授权方式：读，写，同时同时具有读写权限。<br>从函数的参数可以看到，如果攻击者可以控制第一个参数，那么就可以获得了文件的读写权限。这可能包括以下几种情况：<br>1）包名是从外部可被攻击者控制的输入传入，比如导出的组件（四大组件），webView等<br>   进一步可能存在两种n情况：1是包名完全从外部可控输入，2是包名的不完整校验导致绕过。比如使用startWith，endWith，contain等不安全的字符校验。<br>2）授权的包名当前系统中不存在，因此攻击者可以伪造该包名，从而获得文件的读写权限。<br>3）最常见的一种，就是通过隐式Intent查询当前系统满足能处理该Intent的包，然后授予这些应用授权。<br>   <img src="/2023/06/12/grantUriPermission-attack/grantUriPermission-bug-model.png" class title="grantUriPermission-bug"><br>   这种授权方式，明显属于授权范围过大。攻击者只需要定义一个Activity，然后Intent-filter设置Action是android.intent.action.SEND就可以获得文件的读写权限。<br>   虽然，这种情况下，通常需要用户交互，而且Uri获取的确困难，因此CVSS打分通常无法达到7.0以上，仅属于一般问题。但是，如果Uri是有规律，可预测的（哪怕是遍历沙盒的文件），CVSS打分也将达到7.0以上，属于严重安全问题。</p>
+<p>第一个参数是被授权的应用的包名，第二个参数是被授权的文件的Uri，第三个参数是具体的授权方式：读，写，同时同时具有读写权限。<br>从函数的参数可以看到，如果攻击者可以控制第一个参数，那么就可以获得了文件的读写权限。这可能包括以下几种情况：<br>1）包名是从外部可被攻击者控制的输入传入，比如导出的组件（四大组件），webView等<br>   进一步可能存在两种情况：1是包名完全从外部可控输入，2是包名的不完整校验导致绕过。比如使用startWith，endWith，contain等不安全的字符校验。<br>2）授权的包名当前系统中不存在，因此攻击者可以伪造该包名，从而获得文件的读写权限。<br>3）最常见的一种，就是通过隐式Intent查询当前系统满足能处理该Intent的包，然后授予这些应用授权。<br>   <img src="/2023/06/12/grantUriPermission-attack/grantUriPermission-bug-model.png" class title="grantUriPermission-bug"><br>   这种授权方式，明显属于授权范围过大。攻击者只需要定义一个Activity，然后Intent-filter设置Action是android.intent.action.SEND就可以获得文件的读写权限。<br>   虽然，这种情况下，通常需要用户交互，而且Uri获取的确困难，因此CVSS打分通常无法达到7.0以上，仅属于一般问题。但是，如果Uri是有规律，可预测的（哪怕是遍历沙盒的文件），CVSS打分也将达到7.0以上，属于严重安全问题。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>对于Android开发而言，不建议使用grantUriPermission进行授权，推荐使用Intent的addFlags进行一次性授权，防止出现授权过大的安全风险。</p>
 
     </div>
@@ -311,7 +317,10 @@
     <a href="/2023/05/31/root-pixel7/" rel="prev" title="pixel 7/pro的root过程">
       <i class="fa fa-chevron-left"></i> pixel 7/pro的root过程
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2023/06/16/mariana-trench-build/" rel="next" title="源码编译mariana-trench">
+      源码编译mariana-trench <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -391,7 +400,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-count">10</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -404,7 +413,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -452,12 +461,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">21k</span>
+    <span title="站点总字数">23k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">19 分钟</span>
+    <span title="站点阅读时长">21 分钟</span>
 </div>
 
         
