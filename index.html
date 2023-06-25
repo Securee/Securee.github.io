@@ -186,6 +186,145 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2023/06/25/Jandroid-setup/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="冷霜飞">
+      <meta itemprop="description" content="秋阴不敌霜飞晚，留得残荷听雨声">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="冷霜飞">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/06/25/Jandroid-setup/" class="post-title-link" itemprop="url">逻辑漏洞挖掘工具Jandroid搭建</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-06-25 10:01:39 / 修改时间：15:24:18" itemprop="dateCreated datePublished" datetime="2023-06-25T10:01:39+08:00">2023-06-25</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B7%A5%E5%85%B7%E8%84%9A%E6%9C%AC/" itemprop="url" rel="index"><span itemprop="name">工具脚本</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.9k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="关于Jandroid工具"><a href="#关于Jandroid工具" class="headerlink" title="关于Jandroid工具"></a>关于Jandroid工具</h2><p>Jandroid是<a target="_blank" rel="noopener" href="https://labs.withsecure.com/home">withSecure</a>实验室推出的一个<a target="_blank" rel="noopener" href="https://labs.withsecure.com/publications/automating-pwn2own-with-jandroid">开源工具</a>。这个工具原来是该实验室为了在Pwn20wn中挖掘从浏览器发起的攻击利用链，是一个逻辑漏洞挖掘工具。Android的静态分析工具中，该工具不算是最出色的，而且目前已经三年没有更新了，但是发现该工具有以下4个优点，所以想花一点时间去了解一下：<br>1、支持从批量的APK中查找漏洞链，比如可以将手机的APK导出到一个目录，进行批量分析<br>2、提供GUI界面进行规则编辑<br>3、同时支持manifest和代码中漏洞查找<br>4、支持GUI展示漏洞形成的调用链<br>要想了解该工具，搭建该工具的环境无疑是第一步。</p>
+<h2 id="搭建Jandroid环境"><a href="#搭建Jandroid环境" class="headerlink" title="搭建Jandroid环境"></a>搭建Jandroid环境</h2><p>1、虚拟机环境<br>和其它工具类似，这里也是使用ubuntu的虚拟机进行搭建，版本选择18.04（同样的理由，使用其它版本可能会遇到各种兼容的问题）。</p>
+<p>2、安装JDK8</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install openjdk-8-jdk</span><br></pre></td></tr></table></figure>
+
+<p>确认当期的java版本是1.8</p>
+<img src="/2023/06/25/Jandroid-setup/install-jdk8.png" class title="install-jdk8">
+
+<p>确认当期python版本是python3：</p>
+<img src="/2023/06/25/Jandroid-setup/install-python37.png" class title="install-jdk8">
+<p>ubuntu 18.04默认安装的python3版本是3.6.9,但是相应的pip没有安装，需要执行：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install python3-pip</span><br></pre></td></tr></table></figure>
+
+<p>3、下载Jandroid的源码</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/WithSecureLabs/Jandroid.git</span><br></pre></td></tr></table></figure>
+
+<p>修改requirements.txt文件：</p>
+<img src="/2023/06/25/Jandroid-setup/modify-requirement.png" class title="modify-requirement">
+<p>将neo4j注释掉，因为这个工具需要手工安装，而androguard则将版本3.3.5删除（不需要指定版本）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cmd Jandroid</span><br><span class="line">pip3 install -r requirements.txt</span><br></pre></td></tr></table></figure>
+
+<p>在安装以上依赖过程中，可能会出现各种依赖问题，这时候仔细查看错误原因，一般都可以找到解决方法，比如安装pillow提示：</p>
+<img src="/2023/06/25/Jandroid-setup/install-pillow-fail.png" class title="install-pillow-fail">
+<p>根据官网提示，安装相应依赖即可：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install libtiff5-dev libjpeg8-dev libopenjp2-7-dev zlib1g-dev \</span><br><span class="line">    libfreetype6-dev liblcms2-dev libwebp-dev tcl8.6-dev tk8.6-dev python3-tk \</span><br><span class="line">    libharfbuzz-dev libfribidi-dev libxcb1-dev</span><br></pre></td></tr></table></figure>
+
+<p>安装neo4j 3.1.7版本：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wget -O - https://debian.neo4j.com/neotechnology.gpg.key | sudo apt-key add -</span><br><span class="line">echo &#x27;deb https://debian.neo4j.com stable legacy&#x27; | sudo tee /etc/apt/sources.list.d/neo4j.list #注意要输入root的密码</span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install neo4j=3.1.7</span><br></pre></td></tr></table></figure>
+
+<h2 id="启动Jandroid"><a href="#启动Jandroid" class="headerlink" title="启动Jandroid"></a>启动Jandroid</h2><p>如果以上一切正常的话，可以尝试启动Jandroid</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cmd Jandroid/gui</span><br><span class="line">python3 jandroid_gui.py</span><br></pre></td></tr></table></figure>
+
+<p>如果启动失败，提示：</p>
+<img src="/2023/06/25/Jandroid-setup/jandroid-start-fail.png" class title="jandroid-start-fail">
+<p>那么则，需要u执行以下命令，安装相应的依赖：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install python3-tk</span><br></pre></td></tr></table></figure>
+
+<p>如果提示找不到idlelib’，则</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install idle3</span><br></pre></td></tr></table></figure>
+
+<p>此时，Jandroid终于可以运行起来：</p>
+<img src="/2023/06/25/Jandroid-setup/jandroid-start-succ.png" class title="jandroid-start-succ">
+
+<h2 id="Jandroid配置"><a href="#Jandroid配置" class="headerlink" title="Jandroid配置"></a>Jandroid配置</h2><p>如果不使用GUI查看漏洞链的话，可以直接一般不需要进行其它特别配置，但是如果使用neo4j的话，则需要配置neo4j，主要是帐号密码：</p>
+<img src="/2023/06/25/Jandroid-setup/neo4j-config.png" class title="neo4j-config">
+<p>默认情况下，neo4j的帐号密码都是neo4j，通过浏览器打开：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:7474</span><br></pre></td></tr></table></figure>
+
+<p>会提示修改密码，这里将密码修改为neo3j，点击启动界面中的Advanced configuration按钮，打开配置文件，直接修改，然后保存即可。</p>
+<h2 id="运行Jandroid进行分析"><a href="#运行Jandroid进行分析" class="headerlink" title="运行Jandroid进行分析"></a>运行Jandroid进行分析</h2><p>Jandroid默认提供了一个简单的规则，可以将带测试的APK拷贝到指定的目录或者在Jandroid界面上指定APK所在的目录，然后点击开始分析。<br>这个过程中，可能会报错：</p>
+<img src="/2023/06/25/Jandroid-setup/jandroid-run-fail.png" class title="jandroid-run-fail">
+<p>这是因为系统中，没有存在python这个命令，但是存在python3,因此，可以建立一个软连接来解决这个问题：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ln -s /usr/bin/python3 /usr/bin/python</span><br></pre></td></tr></table></figure>
+
+<p>这样之后，就可以进行漏洞挖掘了：</p>
+<img src="/2023/06/25/Jandroid-setup/jandroid-run-succ.png" class title="jandroid-run-succ">
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>与其它静态分析工具类似，如何准确地编写规则是挖掘到漏洞的关键，此外，该工具的分析速度稍微有点慢，如果使用配置强劲的物理机应该会有速度的提升。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2023/06/16/mariana-trench-build/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -217,7 +356,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-06-19 19:50:09" itemprop="dateModified" datetime="2023-06-19T19:50:09+08:00">2023-06-19</time>
+                <time title="修改时间：2023-06-25 10:30:51" itemprop="dateModified" datetime="2023-06-25T10:30:51+08:00">2023-06-25</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -256,55 +395,55 @@
       
           <h2 id="关于mariana-trench静态分析工具"><a href="#关于mariana-trench静态分析工具" class="headerlink" title="关于mariana trench静态分析工具"></a>关于mariana trench静态分析工具</h2><p>mariana trench是facebook，也即是现在的Meta公司开源的一款用于Android的静态分析工具，支持有源码和无源码两种方式的分析，详细使用可以看官网的<a target="_blank" rel="noopener" href="https://mariana-tren.ch/">介绍</a>,源码在github上<a target="_blank" rel="noopener" href="https://github.com/facebook/mariana-trench">开源</a>.<br>其它同类的工具还有<a target="_blank" rel="noopener" href="https://github.com/MobSF/Mobile-Security-Framework-MobSF">Mobile-Security-Framework-MobSF</a>、<a target="_blank" rel="noopener" href="https://soot-oss.github.io/soot/">Soot</a>、<a target="_blank" rel="noopener" href="https://github.com/bytedance/appshark">appshark</a>、<a target="_blank" rel="noopener" href="https://github.com/WithSecureLabs/Jandroid">Jandroid</a>。<br>mariana trench在有源码的情况下，会比较明显指出漏洞所在的代码，无源码的情况下，通常需要更多的人工分析确认。与Soot、appshark、Jandroid一样，mariana trench最大的特点就是静态污点分析，通过预置和自定义的规则查找满足一定模式的漏洞。<br>经过一段时间的使用，mariana trench有3个比较明显的缺陷：<br>1）主要是基于源码（反编译后的）进行污点分析，但是对于漏洞模式是出现在manifest配置的漏洞则无法制定相应的规则;<br>2）与其它几款污点分析工具类似，也不支持对jar包进行分析，需要一些工具将jar转化为apk;<br>3）默认情况下，不支持对批量的apk进行分析，需要自行编写脚本进行批量分析apk。<br>此外，学习曲线也比较陡，需要充分理解规则里的各个字段的含义，否在即使知道了漏洞的模式，也不知道该怎么写规则。</p>
 <h2 id="源码编译"><a href="#源码编译" class="headerlink" title="源码编译"></a>源码编译</h2><p>事实上，如果只是想尝试或者简单地使用工具，并不需要源码编译生成工具，而只需简单地几条命令即可安装:</p>
-   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install python3 python3-pip python3-venv</span><br><span class="line">python3 -m venv ~/.venvs/mariana-trench</span><br><span class="line">source ~/.venvs/mariana-trench/bin/activate</span><br><span class="line">pip install mariana-trench</span><br><span class="line">pip install fb-sapp</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install python3 python3-pip python3-venv</span><br><span class="line">python3 -m venv ~/.venvs/mariana-trench</span><br><span class="line">source ~/.venvs/mariana-trench/bin/activate</span><br><span class="line">pip install mariana-trench</span><br><span class="line">pip install fb-sapp</span><br></pre></td></tr></table></figure>
 
 <p>但是如果想修改源码，获得更大的定制自由度，则有需要进行源码编译，同时，pypi上的版本跟不上github的更新也是一个原因。</p>
 <h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><p>推荐使用虚拟机，而且是ubuntu 20.04的虚拟机环境，这也是官方测试使用的环境，如果使用其它版本的ubuntu，可能会出现各种编译失败的错误，尤其是低版本的ubuntu。<br>自行使用Virtual Box或者VMware搭建ubuntu 20.04的虚拟机环境。<br>友情提醒：搭建好虚拟机环境后，立即做一个虚拟机镜像保存，不然后续安装了一大堆软件后，还是编译失败，要去定位是哪个软件包引起的话很耗费时间，直接还原镜像最快。</p>
 <h3 id="准备依赖的软件包"><a href="#准备依赖的软件包" class="headerlink" title="准备依赖的软件包"></a>准备依赖的软件包</h3><p>官方的指导文档可能是没有及时更新，如果按照官方的指导进行，很可能编译失败。<br>以下我的编译过程：<br>注意：在执行以下步骤之前，我的ubuntu已经安装了gcc&#x2F;g++ 10</p>
-   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install gcc-10 g++-10</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install gcc-10 g++-10</span><br></pre></td></tr></table></figure>
 
 <p>并将gcc 10作为默认的编译器。</p>
 <p>1、安装brew 工具，并更新</p>
-   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/bin/bash -c &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)&quot;</span><br><span class="line">brew update</span><br><span class="line">brew upgrade</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/bin/bash -c &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)&quot;</span><br><span class="line">brew update</span><br><span class="line">brew upgrade</span><br></pre></td></tr></table></figure>
 
 <p>2、安装cmake zlib jsoncpp re2 googletest<br>官方的指导原本是：</p>
-   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">brew install cmake zlib boost jsoncpp re2</span><br><span class="line">brew install googletest --build-from-source # The package is currently broken.</span><br><span class="line">export CMAKE_PREFIX_PATH=/home/linuxbrew/.linuxbrew/opt/jsoncpp:/home/linuxbrew/.linuxbrew/opt/zlib</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">brew install cmake zlib boost jsoncpp re2</span><br><span class="line">brew install googletest --build-from-source # The package is currently broken.</span><br><span class="line">export CMAKE_PREFIX_PATH=/home/linuxbrew/.linuxbrew/opt/jsoncpp:/home/linuxbrew/.linuxbrew/opt/zlib</span><br></pre></td></tr></table></figure>
 
 <p>这里有两个坑，第一个是boost使用brew安装的话，后面在编译redex的时候会报以下错误：</p>
 <img src="/2023/06/16/mariana-trench-build/boost-error.png" class title="boost build error">
 <p>解决方法：<br>源码编译最新的boost，可以参考这个<a target="_blank" rel="noopener" href="https://blog.csdn.net/ccf19881030/article/details/114788682">博客</a><br>注意：1）都使用sudo切换到root执行 2）设置–eprefix&#x3D;&#x2F;usr<br>第二个坑是源码安装googletest，其实不必要，不需要指定 –build-from-source<br>所以在通过aptz安装boost之后，执行：</p>
-   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">brew install cmake zlib googletest jsoncpp re2</span><br><span class="line">export CMAKE_PREFIX_PATH=/home/linuxbrew/.linuxbrew/opt/jsoncpp:/home/linuxbrew/.linuxbrew/opt/zlib</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">brew install cmake zlib googletest jsoncpp re2</span><br><span class="line">export CMAKE_PREFIX_PATH=/home/linuxbrew/.linuxbrew/opt/jsoncpp:/home/linuxbrew/.linuxbrew/opt/zlib</span><br></pre></td></tr></table></figure>
 
 <p>3、源码编译fmt<br>随便找一个目录，然后</p>
-   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/fmtlib/fmt.git</span><br><span class="line">git checkout 7.1.3</span><br><span class="line">mkdir fmt/build</span><br><span class="line">cd fmt/build</span><br><span class="line">cmake ..</span><br><span class="line">make</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/fmtlib/fmt.git</span><br><span class="line">git checkout 7.1.3</span><br><span class="line">mkdir fmt/build</span><br><span class="line">cd fmt/build</span><br><span class="line">cmake ..</span><br><span class="line">make</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
 
 <p>官方指导使用的是8.1.1,但是在编译的时候报了以下错误：</p>
 <img src="/2023/06/16/mariana-trench-build/fmt-error.png" class title="fmt build error">
 
 <h3 id="编译mariana-trench"><a href="#编译mariana-trench" class="headerlink" title="编译mariana trench"></a>编译mariana trench</h3><p>1、首先通过git下载最新的mariana trench源码：</p>
-   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/facebook/mariana-trench.git</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/facebook/mariana-trench.git</span><br></pre></td></tr></table></figure>
 
 <p>2、编译mariana-trench依赖的redex<br>redex是facebooki开源的一个Android代码优化框架，而这里，mariana trench主要用该框架获取APK的代码调用图。<br>进入刚下载的mariana trench目录，并下载redex的a源码</p>
-   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd mariana-trench</span><br><span class="line">git clone https://github.com/facebook/redex.git</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd mariana-trench</span><br><span class="line">git clone https://github.com/facebook/redex.git</span><br></pre></td></tr></table></figure>
 
 <p>设置redex的编译安装目录</p>
-   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MT_INSTALL_DIRECTORY=&quot;$PWD/install&quot;</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MT_INSTALL_DIRECTORY=&quot;$PWD/install&quot;</span><br></pre></td></tr></table></figure>
 
 <p>开始编译并安装redex：</p>
-   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cd redex</span><br><span class="line">mkdir build</span><br><span class="line">cd build</span><br><span class="line">cmake -DCMAKE_INSTALL_PREFIX=&quot;$MT_INSTALL_DIRECTORY&quot; ..</span><br><span class="line">make -j4</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cd redex</span><br><span class="line">mkdir build</span><br><span class="line">cd build</span><br><span class="line">cmake -DCMAKE_INSTALL_PREFIX=&quot;$MT_INSTALL_DIRECTORY&quot; ..</span><br><span class="line">make -j4</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
 
 <p>如果这一步没有问题，则可以开始编译mariana trench了，如果出现问题，一般是依赖不正确，可以尝试使用brew先卸载相应的包，然后使用apt安装。<br>比如re2,可以使用</p>
-   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install libre2-dev</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install libre2-dev</span><br></pre></td></tr></table></figure>
 
 <p>代替brew re2。</p>
-   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cd ../..  # 返回mariana trench的根目录</span><br><span class="line">mkdir build</span><br><span class="line">cd build</span><br><span class="line">cmake -DREDEX_ROOT=&quot;$MT_INSTALL_DIRECTORY&quot; -DCMAKE_INSTALL_PREFIX=&quot;$MT_INSTALL_DIRECTORY&quot; ..</span><br><span class="line">make -j4</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cd ../..  # 返回mariana trench的根目录</span><br><span class="line">mkdir build</span><br><span class="line">cd build</span><br><span class="line">cmake -DREDEX_ROOT=&quot;$MT_INSTALL_DIRECTORY&quot; -DCMAKE_INSTALL_PREFIX=&quot;$MT_INSTALL_DIRECTORY&quot; ..</span><br><span class="line">make -j4</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
 
 <h2 id="安装mariana-trench"><a href="#安装mariana-trench" class="headerlink" title="安装mariana trench"></a>安装mariana trench</h2><p>切换到mariana trench根目录，执行：</p>
-   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install python3-pip #如果还没有安装pip，请执行该命令</span><br><span class="line">python3 scripts/setup.py \</span><br><span class="line">  --binary &quot;$MT_INSTALL_DIRECTORY/bin/mariana-trench-binary&quot; \</span><br><span class="line">  --pyredex &quot;$MT_INSTALL_DIRECTORY/bin/pyredex&quot; \</span><br><span class="line">  install</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install python3-pip #如果还没有安装pip，请执行该命令</span><br><span class="line">python3 scripts/setup.py \</span><br><span class="line">  --binary &quot;$MT_INSTALL_DIRECTORY/bin/mariana-trench-binary&quot; \</span><br><span class="line">  --pyredex &quot;$MT_INSTALL_DIRECTORY/bin/pyredex&quot; \</span><br><span class="line">  install</span><br></pre></td></tr></table></figure>
 
 <p>执行完以上命令后，如果在任意目录下，执行mariana-trench –verison提上没有找打命令，请将当期用户目录：&#x2F;home&#x2F;%当前用户名%&#x2F;.local&#x2F;bin添加到PATH环境变量。</p>
 <h2 id="定制mariana-trench"><a href="#定制mariana-trench" class="headerlink" title="定制mariana trench"></a>定制mariana trench</h2><p>当定制了mariana trench的时候，发生源码更改，可以在build目录下，执行：</p>
-   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./mariana-trench --help</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./mariana-trench --help</span><br></pre></td></tr></table></figure>
 
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>遇到问题解决问题不放弃，另外Google总算能给我们一些提示，同时，不要忘了在源码的issues上看看别人有没有遇到相同的问题。</p>
 <p>更新2023.06.19：<br>还有一种方法：使用最新的ubuntu 22.04版本，</p>
@@ -1144,101 +1283,11 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2023/04/19/signature-bypass/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="冷霜飞">
-      <meta itemprop="description" content="秋阴不敌霜飞晚，留得残荷听雨声">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="冷霜飞">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/04/19/signature-bypass/" class="post-title-link" itemprop="url">签名校验绕过漏洞</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2023-04-19 17:19:08" itemprop="dateCreated datePublished" datetime="2023-04-19T17:19:08+08:00">2023-04-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-04-23 09:25:14" itemprop="dateModified" datetime="2023-04-23T09:25:14+08:00">2023-04-23</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">漏洞模式</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>784</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>目前，应用一般都会对自研模块的文件进行签名，并在软件启动时候校验签名信息，以保证软件的完整性.一些软件厂商除了使用<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/wintrust/nf-wintrust-winverifytrust">WinVerifyTrust</a>校验签名有效性外，还会对签名的CN字段进行校验，以便确认该文件是否是预期对证书签发（因为攻击者可能使用泄漏到网络对合法签名证书进行签名）。但是，如果仅仅通过判断CN字段是否包含特定字段，则完全可以被绕过。</p>
-<h2 id="工具依赖"><a href="#工具依赖" class="headerlink" title="工具依赖"></a>工具依赖</h2><p>makecert.exe<br>cert2spc.exe<br>pvk2pfx.exe<br>signtool.exe<br>如果已经安装了微软对SDK，那么以上工具将会默认安装，不需要单独安装。推荐通过安装SDK方式进行安装，以避免出现依赖缺少的问题。<br>同时，为了方便使用，建议将以上工具路径添加到系统的环境变量。</p>
-<h2 id="生成自签名的根证书"><a href="#生成自签名的根证书" class="headerlink" title="生成自签名的根证书"></a>生成自签名的根证书</h2><p>makecert.exe -sv D:\mykey.pvk -n “CN&#x3D;my company name” D:\myCert.cer -a SHA256<br>注意：如果CN字段包含特殊字符，比如英文的句号.逗号,，则需要使用转义符号\将整个CN包括起来。<br>比如，-n “CN&#x3D;&quot;XXX Co., Ltd.&quot;”<br>该命令会弹出私钥保护口令，三次</p>
-<h2 id="创建spc文件"><a href="#创建spc文件" class="headerlink" title="创建spc文件"></a>创建spc文件</h2><p>cert2spc.exe D:\myCert.cer D:\mycet.spc</p>
-<h2 id="将公钥和私钥合并成一个pfx格式对s证书文件"><a href="#将公钥和私钥合并成一个pfx格式对s证书文件" class="headerlink" title="将公钥和私钥合并成一个pfx格式对s证书文件"></a>将公钥和私钥合并成一个pfx格式对s证书文件</h2><p>pvk2pfx.exe -pvk D:\mykey.pvk -pi password -spc D:\mycert.spc -pfx D:\mykey.pfx -po password</p>
-<h2 id="签署目标文件"><a href="#签署目标文件" class="headerlink" title="签署目标文件"></a>签署目标文件</h2><p>signtool.exe sign &#x2F;v &#x2F;as &#x2F;fd sha256 &#x2F;f “mykey.pfx” &#x2F;p “password” &#x2F;tr <a target="_blank" rel="noopener" href="http://timestamp.digicert.com/">http://timestamp.digicert.com</a> “myfile.exe”</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+  </nav>
 
 
 
@@ -1305,7 +1354,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-count">11</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1318,7 +1367,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1366,12 +1415,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">24k</span>
+    <span title="站点总字数">26k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">22 分钟</span>
+    <span title="站点阅读时长">24 分钟</span>
 </div>
 
         
