@@ -20,24 +20,23 @@
     var CONFIG = {"hostname":"lengshuangfei.top","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="userfaultfd技术userfaultfd提供给用户处理缺页异常的一个正常功能，最开始是用于虚拟机迁移场景。但后来不断被攻击者用于漏洞的利用：当发生page fault的时候，内核会暂停处理，等待用户对userfaultfd的回调处理完毕后再进行往下执行，利用这个暂停，攻击者就可以提高类似UAF的漏洞利用。因为UAF通常是多线程环境下产生的，为了稳定利用漏洞，攻击者需要在free之后，use">
+  <meta name="description" content="关于任意代码执行漏洞与任意命令执行漏洞类似，但任意代码执行不仅仅可以执行系统中已经存在的命令，还可以执行攻击者指定的代码（这通常通过执行一段shellcode，或者加载执行攻击者编写的一个二进制文件，比如可执行文件，动态库等）。在Android中，也会有类似的漏洞。 Android中的任意代码执行漏洞1、应用程序加载的动态库可被攻击者控制   应用程序基于各种业务需求，通常会将一些公共功能，尤其是">
 <meta property="og:type" content="article">
-<meta property="og:title" content="userfaultfd默认禁止非特权用户调用">
-<meta property="og:url" content="https://lengshuangfei.top/2023/05/09/userfaultdf-forbid-unprivileged-users/index.html">
+<meta property="og:title" content="Android中的任意代码执行漏洞">
+<meta property="og:url" content="https://lengshuangfei.top/2023/08/01/android-arbitrary-code-execution/index.html">
 <meta property="og:site_name" content="冷霜飞">
-<meta property="og:description" content="userfaultfd技术userfaultfd提供给用户处理缺页异常的一个正常功能，最开始是用于虚拟机迁移场景。但后来不断被攻击者用于漏洞的利用：当发生page fault的时候，内核会暂停处理，等待用户对userfaultfd的回调处理完毕后再进行往下执行，利用这个暂停，攻击者就可以提高类似UAF的漏洞利用。因为UAF通常是多线程环境下产生的，为了稳定利用漏洞，攻击者需要在free之后，use">
+<meta property="og:description" content="关于任意代码执行漏洞与任意命令执行漏洞类似，但任意代码执行不仅仅可以执行系统中已经存在的命令，还可以执行攻击者指定的代码（这通常通过执行一段shellcode，或者加载执行攻击者编写的一个二进制文件，比如可执行文件，动态库等）。在Android中，也会有类似的漏洞。 Android中的任意代码执行漏洞1、应用程序加载的动态库可被攻击者控制   应用程序基于各种业务需求，通常会将一些公共功能，尤其是">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://lengshuangfei.top/2023/05/09/userfaultdf-forbid-unprivileged-users/userfaultfd_unprivileaged_users.png">
-<meta property="og:image" content="https://lengshuangfei.top/2023/05/09/userfaultdf-forbid-unprivileged-users/userfaultfd_disable.png">
-<meta property="article:published_time" content="2023-05-09T08:10:37.000Z">
-<meta property="article:modified_time" content="2023-05-09T08:40:25.992Z">
+<meta property="og:image" content="https://lengshuangfei.top/2023/08/01/android-arbitrary-code-execution/createPackageContext.png">
+<meta property="article:published_time" content="2023-08-01T01:47:47.000Z">
+<meta property="article:modified_time" content="2023-08-01T02:49:08.584Z">
 <meta property="article:author" content="冷霜飞">
-<meta property="article:tag" content="userfaultfd">
-<meta property="article:tag" content="特权用户">
+<meta property="article:tag" content="Androi">
+<meta property="article:tag" content="任意代码执行">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://lengshuangfei.top/2023/05/09/userfaultdf-forbid-unprivileged-users/userfaultfd_unprivileaged_users.png">
+<meta name="twitter:image" content="https://lengshuangfei.top/2023/08/01/android-arbitrary-code-execution/createPackageContext.png">
 
-<link rel="canonical" href="https://lengshuangfei.top/2023/05/09/userfaultdf-forbid-unprivileged-users/">
+<link rel="canonical" href="https://lengshuangfei.top/2023/08/01/android-arbitrary-code-execution/">
 
 
 <script id="page-configurations">
@@ -50,7 +49,7 @@
   };
 </script>
 
-  <title>userfaultfd默认禁止非特权用户调用 | 冷霜飞</title>
+  <title>Android中的任意代码执行漏洞 | 冷霜飞</title>
   
 
 
@@ -194,7 +193,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2023/05/09/userfaultdf-forbid-unprivileged-users/">
+    <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2023/08/01/android-arbitrary-code-execution/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -207,7 +206,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          userfaultfd默认禁止非特权用户调用
+          Android中的任意代码执行漏洞
         </h1>
 
         <div class="post-meta">
@@ -218,7 +217,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2023-05-09 16:10:37 / 修改时间：16:40:25" itemprop="dateCreated datePublished" datetime="2023-05-09T16:10:37+08:00">2023-05-09</time>
+              <time title="创建时间：2023-08-01 09:47:47 / 修改时间：10:49:08" itemprop="dateCreated datePublished" datetime="2023-08-01T09:47:47+08:00">2023-08-01</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -226,7 +225,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/" itemprop="url" rel="index"><span itemprop="name">漏洞利用</span></a>
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">漏洞模式</span></a>
                 </span>
             </span>
 
@@ -243,7 +242,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>434</span>
+              <span>1.6k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -262,15 +261,11 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="userfaultfd技术"><a href="#userfaultfd技术" class="headerlink" title="userfaultfd技术"></a>userfaultfd技术</h2><p>userfaultfd提供给用户处理缺页异常的一个正常功能，最开始是用于虚拟机迁移场景。但后来不断被攻击者用于漏洞的利用：当发生page fault的时候，内核会暂停处理，等待用户对userfaultfd的回调处理完毕后再进行往下执行，利用这个暂停，攻击者就可以提高类似UAF的漏洞利用。因为UAF通常是多线程环境下产生的，为了稳定利用漏洞，攻击者需要在free之后，used之前替换目标的内存，利用suserfaultfd技术可以比较容易实现这一点。具体可以参考<a target="_blank" rel="noopener" href="http://brieflyx.me/2020/linux-tools/userfaultfd-internals/">Linux Kernel Userfaultfd 内部机制探究</a></p>
-<h2 id="userfaultfd限制"><a href="#userfaultfd限制" class="headerlink" title="userfaultfd限制"></a>userfaultfd限制</h2><p>在2019年，有人提交了一个<a target="_blank" rel="noopener" href="https://lwn.net/Articles/782745/">补丁</a>对userfaultfd的使用进行了限制</p>
-<img src="/2023/05/09/userfaultdf-forbid-unprivileged-users/userfaultfd_unprivileaged_users.png" class title="userfaultfd限制">
-<p>因此，在我们的漏洞利用中，建议先通过命令</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /proc/sys/vm/unprivileged_userfaultfd</span><br></pre></td></tr></table></figure>
-
-<p>检查是否允许非特权用户调用userfaultfd</p>
-<img src="/2023/05/09/userfaultdf-forbid-unprivileged-users/userfaultfd_disable.png" class title="userfaultfd禁用">
-<p>0表示禁用，这种情况下，只能通过其它方式进行漏洞利用了。</p>
+        <h2 id="关于任意代码执行漏洞"><a href="#关于任意代码执行漏洞" class="headerlink" title="关于任意代码执行漏洞"></a>关于任意代码执行漏洞</h2><p>与任意命令执行漏洞类似，但任意代码执行不仅仅可以执行系统中已经存在的命令，还可以执行攻击者指定的代码（这通常通过执行一段shellcode，或者加载执行攻击者编写的一个二进制文件，比如可执行文件，动态库等）。<br>在Android中，也会有类似的漏洞。</p>
+<h2 id="Android中的任意代码执行漏洞"><a href="#Android中的任意代码执行漏洞" class="headerlink" title="Android中的任意代码执行漏洞"></a>Android中的任意代码执行漏洞</h2><p>1、应用程序加载的动态库可被攻击者控制<br>   应用程序基于各种业务需求，通常会将一些公共功能，尤其是涉及性能方面的，在一个动态库so里实现，比较，文件解析，媒体编解码，通信，加解密。这种情况下，通常是使用了JNI技术，最后通过System.load&#x2F;System.loadLibrary加载相应的动态库。<br>   其中，System.load输入的是动态库的绝对路径，可以是任意路径（当然前提是该应用有访问权限）;而System.loadLibrary的参数是动态库的文件名，不包括扩展名，比如动态库libtest.so,则只需调用System.loadLibrary(“test”)即可。<br>   对于System.loadLibrary稍微展开一下：由于不是路径，而只是一个动态库文件名，那么必然会涉及文件搜索的过程，是否会存在Window平台下的动态库劫持问题呢？<br>   System.loadLibrary(String libName)  –&gt; Runtime.getRuntime().loadLibrary(libName, VMStack.getCallingClassLoader())<br>   这里因为涉及比较复杂的代码分析，因此仅是总结以下：默认先从应用安装目录下lib文件夹搜索，如果没找到，就到一个系统变量：java.library.path中查找，一般情况下，该系统变量值是：&#x2F;system&#x2F;lib和&#x2F;vendor&#x2F;lib。因此要实现动态库劫持，最佳方法是利用其它漏洞篡改应用安装目录下的动态库</p>
+<p>2、DexClassLoader路径可被攻击者控制<br>   DexClassLoader是用于加载外部的类，比如一些插件，是动态从网络的服务器下载然后load到应用的进程空间。<br>   DexClassLoader(String dexPath, String optimizedDirectory, String librarySearchPath, ClassLoader parent)<br>   如果第一个参数dexPath是攻击者可以控制的，那么就可以令应用程序加载攻击者指定的dex，实现任意代码执行。<br>   第二个参数是一个缓存目录，一般是沙箱内的私有目录<br>   第三个是dex可能需要依赖so搜索路径<br>   第四个参数是父类加载器</p>
+<p>3、createPackageContext的包名可被攻击者控制或者绕过<br>   应用程序可能需要获取其它应用的接口，包括Java的方法，应用的资源等。由于其它应用Java的方法是不能直接loadclass的，因此其它应用的classloader与当期应用的classloader不一样，因此需要先通过createaPackgeContext将应用load到内存，获得context后，再getClassloder，最后通过loader来loadClass。这里可能存在几个可能的漏洞模式：<br>   1）createPackageContext第一个参数，也即是packageName是攻击者完全可控<br>      攻击者可以伪造按照该packageName的应用，被动等待，一旦受害者应用调用了该接口，哪怕仅是调用getClassloader都可以触发任意代码执行：<br>      <img src="/2023/08/01/android-arbitrary-code-execution/createPackageContext.png" class title="createPackageContext"><br>   2）packageName的校验可被绕过<br>      比如使用startWith，endWith，contain，indexof，这些方法很容易被绕过<br>      具体的漏洞模式解释，可以<a target="_blank" rel="noopener" href="https://blog.oversecured.com/Android-arbitrary-code-execution-via-third-party-package-contexts/">参数</a></p>
+<h2 id="下一步"><a href="#下一步" class="headerlink" title="下一步"></a>下一步</h2><p>下一步指定漏洞扫描的规则，通过静态污点分析工具批量扫描应用。</p>
 
     </div>
 
@@ -286,7 +281,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://lengshuangfei.top/2023/05/09/userfaultdf-forbid-unprivileged-users/" title="userfaultfd默认禁止非特权用户调用">https://lengshuangfei.top/2023/05/09/userfaultdf-forbid-unprivileged-users/</a>
+    <a href="https://lengshuangfei.top/2023/08/01/android-arbitrary-code-execution/" title="Android中的任意代码执行漏洞">https://lengshuangfei.top/2023/08/01/android-arbitrary-code-execution/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -297,8 +292,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/userfaultfd/" rel="tag"># userfaultfd</a>
-              <a href="/tags/%E7%89%B9%E6%9D%83%E7%94%A8%E6%88%B7/" rel="tag"># 特权用户</a>
+              <a href="/tags/Androi/" rel="tag"># Androi</a>
+              <a href="/tags/%E4%BB%BB%E6%84%8F%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/" rel="tag"># 任意代码执行</a>
           </div>
 
         
@@ -307,13 +302,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2023/04/26/bluetooth-fuzz/" rel="prev" title="利用ESP开发板进行蓝牙的Fuzz测试">
-      <i class="fa fa-chevron-left"></i> 利用ESP开发板进行蓝牙的Fuzz测试
+    <a href="/2023/06/25/Jandroid-setup/" rel="prev" title="逻辑漏洞挖掘工具Jandroid搭建">
+      <i class="fa fa-chevron-left"></i> 逻辑漏洞挖掘工具Jandroid搭建
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2023/05/16/Windows-namedpipe-attacksurface/" rel="next" title="Window命名管道的新提权方式">
-      Window命名管道的新提权方式 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -373,7 +365,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#userfaultfd%E6%8A%80%E6%9C%AF"><span class="nav-number">1.</span> <span class="nav-text">userfaultfd技术</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#userfaultfd%E9%99%90%E5%88%B6"><span class="nav-number">2.</span> <span class="nav-text">userfaultfd限制</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B3%E4%BA%8E%E4%BB%BB%E6%84%8F%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E"><span class="nav-number">1.</span> <span class="nav-text">关于任意代码执行漏洞</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Android%E4%B8%AD%E7%9A%84%E4%BB%BB%E6%84%8F%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E"><span class="nav-number">2.</span> <span class="nav-text">Android中的任意代码执行漏洞</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8B%E4%B8%80%E6%AD%A5"><span class="nav-number">3.</span> <span class="nav-text">下一步</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -544,7 +536,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'Securee.github.io',
       owner       : 'Securee',
       admin       : ['Securee'],
-      id          : '82ec2329d87d8ecf0053f6af0ded01c7',
+      id          : '84947a8714efe5614bc974911c9a2d9a',
         language: 'zh-CN',
       distractionFreeMode: true
     });
