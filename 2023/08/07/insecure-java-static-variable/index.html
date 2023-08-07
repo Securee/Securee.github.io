@@ -20,24 +20,21 @@
     var CONFIG = {"hostname":"lengshuangfei.top","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="userfaultfd技术userfaultfd提供给用户处理缺页异常的一个正常功能，最开始是用于虚拟机迁移场景。但后来不断被攻击者用于漏洞的利用：当发生page fault的时候，内核会暂停处理，等待用户对userfaultfd的回调处理完毕后再进行往下执行，利用这个暂停，攻击者就可以提高类似UAF的漏洞利用。因为UAF通常是多线程环境下产生的，为了稳定利用漏洞，攻击者需要在free之后，use">
+  <meta name="description" content="漏洞模式背景JAVA是一个挺神奇的面向对象的编程语言，它提供了一个反射机制，通过该机制，可以：1、获取一个指定的Class对象2、获取指定类的所有字段–Field3、获取指定类的所有构造方法 –constructor4、获取指定类的所有非构造方法 –Method这个特性原意可能仅仅是辅助开发人员有效地开发和自验证，从安全角度看，却提供了一个很好的漏洞利用方法。 漏洞模式在Android中，如果应用">
 <meta property="og:type" content="article">
-<meta property="og:title" content="userfaultfd默认禁止非特权用户调用">
-<meta property="og:url" content="https://lengshuangfei.top/2023/05/09/userfaultdf-forbid-unprivileged-users/index.html">
+<meta property="og:title" content="Androidg中不安全的静态变量使用">
+<meta property="og:url" content="https://lengshuangfei.top/2023/08/07/insecure-java-static-variable/index.html">
 <meta property="og:site_name" content="冷霜飞">
-<meta property="og:description" content="userfaultfd技术userfaultfd提供给用户处理缺页异常的一个正常功能，最开始是用于虚拟机迁移场景。但后来不断被攻击者用于漏洞的利用：当发生page fault的时候，内核会暂停处理，等待用户对userfaultfd的回调处理完毕后再进行往下执行，利用这个暂停，攻击者就可以提高类似UAF的漏洞利用。因为UAF通常是多线程环境下产生的，为了稳定利用漏洞，攻击者需要在free之后，use">
+<meta property="og:description" content="漏洞模式背景JAVA是一个挺神奇的面向对象的编程语言，它提供了一个反射机制，通过该机制，可以：1、获取一个指定的Class对象2、获取指定类的所有字段–Field3、获取指定类的所有构造方法 –constructor4、获取指定类的所有非构造方法 –Method这个特性原意可能仅仅是辅助开发人员有效地开发和自验证，从安全角度看，却提供了一个很好的漏洞利用方法。 漏洞模式在Android中，如果应用">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://lengshuangfei.top/2023/05/09/userfaultdf-forbid-unprivileged-users/userfaultfd_unprivileaged_users.png">
-<meta property="og:image" content="https://lengshuangfei.top/2023/05/09/userfaultdf-forbid-unprivileged-users/userfaultfd_disable.png">
-<meta property="article:published_time" content="2023-05-09T08:10:37.000Z">
-<meta property="article:modified_time" content="2023-05-09T08:40:25.992Z">
+<meta property="article:published_time" content="2023-08-07T03:37:07.000Z">
+<meta property="article:modified_time" content="2023-08-07T04:04:23.696Z">
 <meta property="article:author" content="冷霜飞">
-<meta property="article:tag" content="userfaultfd">
-<meta property="article:tag" content="特权用户">
+<meta property="article:tag" content="反射">
+<meta property="article:tag" content="敏感信息泄漏和篡改">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://lengshuangfei.top/2023/05/09/userfaultdf-forbid-unprivileged-users/userfaultfd_unprivileaged_users.png">
 
-<link rel="canonical" href="https://lengshuangfei.top/2023/05/09/userfaultdf-forbid-unprivileged-users/">
+<link rel="canonical" href="https://lengshuangfei.top/2023/08/07/insecure-java-static-variable/">
 
 
 <script id="page-configurations">
@@ -50,7 +47,7 @@
   };
 </script>
 
-  <title>userfaultfd默认禁止非特权用户调用 | 冷霜飞</title>
+  <title>Androidg中不安全的静态变量使用 | 冷霜飞</title>
   
 
 
@@ -194,7 +191,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2023/05/09/userfaultdf-forbid-unprivileged-users/">
+    <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2023/08/07/insecure-java-static-variable/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -207,7 +204,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          userfaultfd默认禁止非特权用户调用
+          Androidg中不安全的静态变量使用
         </h1>
 
         <div class="post-meta">
@@ -218,7 +215,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2023-05-09 16:10:37 / 修改时间：16:40:25" itemprop="dateCreated datePublished" datetime="2023-05-09T16:10:37+08:00">2023-05-09</time>
+              <time title="创建时间：2023-08-07 11:37:07 / 修改时间：12:04:23" itemprop="dateCreated datePublished" datetime="2023-08-07T11:37:07+08:00">2023-08-07</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -226,7 +223,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/" itemprop="url" rel="index"><span itemprop="name">漏洞利用</span></a>
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">漏洞模式</span></a>
                 </span>
             </span>
 
@@ -243,7 +240,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>434</span>
+              <span>829</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -262,15 +259,9 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="userfaultfd技术"><a href="#userfaultfd技术" class="headerlink" title="userfaultfd技术"></a>userfaultfd技术</h2><p>userfaultfd提供给用户处理缺页异常的一个正常功能，最开始是用于虚拟机迁移场景。但后来不断被攻击者用于漏洞的利用：当发生page fault的时候，内核会暂停处理，等待用户对userfaultfd的回调处理完毕后再进行往下执行，利用这个暂停，攻击者就可以提高类似UAF的漏洞利用。因为UAF通常是多线程环境下产生的，为了稳定利用漏洞，攻击者需要在free之后，used之前替换目标的内存，利用suserfaultfd技术可以比较容易实现这一点。具体可以参考<a target="_blank" rel="noopener" href="http://brieflyx.me/2020/linux-tools/userfaultfd-internals/">Linux Kernel Userfaultfd 内部机制探究</a></p>
-<h2 id="userfaultfd限制"><a href="#userfaultfd限制" class="headerlink" title="userfaultfd限制"></a>userfaultfd限制</h2><p>在2019年，有人提交了一个<a target="_blank" rel="noopener" href="https://lwn.net/Articles/782745/">补丁</a>对userfaultfd的使用进行了限制</p>
-<img src="/2023/05/09/userfaultdf-forbid-unprivileged-users/userfaultfd_unprivileaged_users.png" class title="userfaultfd限制">
-<p>因此，在我们的漏洞利用中，建议先通过命令</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /proc/sys/vm/unprivileged_userfaultfd</span><br></pre></td></tr></table></figure>
-
-<p>检查是否允许非特权用户调用userfaultfd</p>
-<img src="/2023/05/09/userfaultdf-forbid-unprivileged-users/userfaultfd_disable.png" class title="userfaultfd禁用">
-<p>0表示禁用，这种情况下，只能通过其它方式进行漏洞利用了。</p>
+        <h2 id="漏洞模式背景"><a href="#漏洞模式背景" class="headerlink" title="漏洞模式背景"></a>漏洞模式背景</h2><p>JAVA是一个挺神奇的面向对象的编程语言，它提供了一个<a target="_blank" rel="noopener" href="https://www.oracle.com/technical-resources/articles/java/javareflection.html">反射机制</a>，通过该机制，可以：<br>1、获取一个指定的Class对象<br>2、获取指定类的所有字段–Field<br>3、获取指定类的所有构造方法 –constructor<br>4、获取指定类的所有非构造方法 –Method<br>这个特性原意可能仅仅是辅助开发人员有效地开发和自验证，从安全角度看，却提供了一个很好的漏洞利用方法。</p>
+<h2 id="漏洞模式"><a href="#漏洞模式" class="headerlink" title="漏洞模式"></a>漏洞模式</h2><p>在Android中，如果应用程序，包括框架层，JAVA代码中如果使用了static定义成员变量，那么该变量的值总是可以被第三方应用获取，甚至修改，如果没有设置final属性的话。<br>遇到过以下的几种情形：<br>1、使用static变量存储密钥<br>2、使用static变量存储白名单<br>3、使用static变量存储路径<br>对于第一种，显然会导致敏感信息泄漏，对于第二和第三中情形，如果开发人员忘记设置final属性，那么攻击者可以通过发射机制修改，从而绕过白名单校验，路径校验等，严重的话甚至可以导致任意代码执行</p>
+<h2 id="如何利用漏洞"><a href="#如何利用漏洞" class="headerlink" title="如何利用漏洞"></a>如何利用漏洞</h2><p>通常情况下，可以直接使用Class.forName获取相应的Class对象，然后通过该Class对象的getDeclaredField&#x2F;getDeclaredMethod等方法获取变量属性和成员方法，具体例子可以参考<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/86293659">链接</a><br>这里，主要是指出两点：<br>如果目标类是在BOOTCLASSPATH这个环境变量下的JAR包，那么可以直接使用Class.forName获取类对象（BOOTCLASSPATH是所有应用classloader默认搜索路径）;<br>如果不是在该环境变量下的JAR包，那么可以这样操作：<br>1）在攻击APK的manifest.xml文件里添加queries属性，值是被攻击的包名<br>2）调用createPackageContext获取被攻击应用的context<br>3）调用Class.forName(“目标类名”，false，otherappcontext.getClassLoader())</p>
 
     </div>
 
@@ -286,7 +277,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://lengshuangfei.top/2023/05/09/userfaultdf-forbid-unprivileged-users/" title="userfaultfd默认禁止非特权用户调用">https://lengshuangfei.top/2023/05/09/userfaultdf-forbid-unprivileged-users/</a>
+    <a href="https://lengshuangfei.top/2023/08/07/insecure-java-static-variable/" title="Androidg中不安全的静态变量使用">https://lengshuangfei.top/2023/08/07/insecure-java-static-variable/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -297,8 +288,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/userfaultfd/" rel="tag"># userfaultfd</a>
-              <a href="/tags/%E7%89%B9%E6%9D%83%E7%94%A8%E6%88%B7/" rel="tag"># 特权用户</a>
+              <a href="/tags/%E5%8F%8D%E5%B0%84/" rel="tag"># 反射</a>
+              <a href="/tags/%E6%95%8F%E6%84%9F%E4%BF%A1%E6%81%AF%E6%B3%84%E6%BC%8F%E5%92%8C%E7%AF%A1%E6%94%B9/" rel="tag"># 敏感信息泄漏和篡改</a>
           </div>
 
         
@@ -307,13 +298,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2023/04/26/bluetooth-fuzz/" rel="prev" title="利用ESP开发板进行蓝牙的Fuzz测试">
-      <i class="fa fa-chevron-left"></i> 利用ESP开发板进行蓝牙的Fuzz测试
+    <a href="/2023/08/03/MT-analyzer/" rel="prev" title="基于mariana-trench的批量静态分析和漏洞挖掘工具">
+      <i class="fa fa-chevron-left"></i> 基于mariana-trench的批量静态分析和漏洞挖掘工具
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2023/05/16/Windows-namedpipe-attacksurface/" rel="next" title="Window命名管道的新提权方式">
-      Window命名管道的新提权方式 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -373,7 +361,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#userfaultfd%E6%8A%80%E6%9C%AF"><span class="nav-number">1.</span> <span class="nav-text">userfaultfd技术</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#userfaultfd%E9%99%90%E5%88%B6"><span class="nav-number">2.</span> <span class="nav-text">userfaultfd限制</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">漏洞模式背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">漏洞模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%88%A9%E7%94%A8%E6%BC%8F%E6%B4%9E"><span class="nav-number">3.</span> <span class="nav-text">如何利用漏洞</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -544,7 +532,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'Securee.github.io',
       owner       : 'Securee',
       admin       : ['Securee'],
-      id          : '82ec2329d87d8ecf0053f6af0ded01c7',
+      id          : '8f78d29e7f461cda4157004e196f4506',
         language: 'zh-CN',
       distractionFreeMode: true
     });

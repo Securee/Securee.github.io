@@ -186,6 +186,90 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2023/08/07/insecure-java-static-variable/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="冷霜飞">
+      <meta itemprop="description" content="秋阴不敌霜飞晚，留得残荷听雨声">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="冷霜飞">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/08/07/insecure-java-static-variable/" class="post-title-link" itemprop="url">Androidg中不安全的静态变量使用</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-08-07 11:37:07 / 修改时间：12:04:23" itemprop="dateCreated datePublished" datetime="2023-08-07T11:37:07+08:00">2023-08-07</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">漏洞模式</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>829</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="漏洞模式背景"><a href="#漏洞模式背景" class="headerlink" title="漏洞模式背景"></a>漏洞模式背景</h2><p>JAVA是一个挺神奇的面向对象的编程语言，它提供了一个<a target="_blank" rel="noopener" href="https://www.oracle.com/technical-resources/articles/java/javareflection.html">反射机制</a>，通过该机制，可以：<br>1、获取一个指定的Class对象<br>2、获取指定类的所有字段–Field<br>3、获取指定类的所有构造方法 –constructor<br>4、获取指定类的所有非构造方法 –Method<br>这个特性原意可能仅仅是辅助开发人员有效地开发和自验证，从安全角度看，却提供了一个很好的漏洞利用方法。</p>
+<h2 id="漏洞模式"><a href="#漏洞模式" class="headerlink" title="漏洞模式"></a>漏洞模式</h2><p>在Android中，如果应用程序，包括框架层，JAVA代码中如果使用了static定义成员变量，那么该变量的值总是可以被第三方应用获取，甚至修改，如果没有设置final属性的话。<br>遇到过以下的几种情形：<br>1、使用static变量存储密钥<br>2、使用static变量存储白名单<br>3、使用static变量存储路径<br>对于第一种，显然会导致敏感信息泄漏，对于第二和第三中情形，如果开发人员忘记设置final属性，那么攻击者可以通过发射机制修改，从而绕过白名单校验，路径校验等，严重的话甚至可以导致任意代码执行</p>
+<h2 id="如何利用漏洞"><a href="#如何利用漏洞" class="headerlink" title="如何利用漏洞"></a>如何利用漏洞</h2><p>通常情况下，可以直接使用Class.forName获取相应的Class对象，然后通过该Class对象的getDeclaredField&#x2F;getDeclaredMethod等方法获取变量属性和成员方法，具体例子可以参考<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/86293659">链接</a><br>这里，主要是指出两点：<br>如果目标类是在BOOTCLASSPATH这个环境变量下的JAR包，那么可以直接使用Class.forName获取类对象（BOOTCLASSPATH是所有应用classloader默认搜索路径）;<br>如果不是在该环境变量下的JAR包，那么可以这样操作：<br>1）在攻击APK的manifest.xml文件里添加queries属性，值是被攻击的包名<br>2）调用createPackageContext获取被攻击应用的context<br>3）调用Class.forName(“目标类名”，false，otherappcontext.getClassLoader())</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2023/08/03/MT-analyzer/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1120,96 +1204,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2023/05/09/userfaultdf-forbid-unprivileged-users/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="冷霜飞">
-      <meta itemprop="description" content="秋阴不敌霜飞晚，留得残荷听雨声">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="冷霜飞">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/05/09/userfaultdf-forbid-unprivileged-users/" class="post-title-link" itemprop="url">userfaultfd默认禁止非特权用户调用</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2023-05-09 16:10:37 / 修改时间：16:40:25" itemprop="dateCreated datePublished" datetime="2023-05-09T16:10:37+08:00">2023-05-09</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/" itemprop="url" rel="index"><span itemprop="name">漏洞利用</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>434</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="userfaultfd技术"><a href="#userfaultfd技术" class="headerlink" title="userfaultfd技术"></a>userfaultfd技术</h2><p>userfaultfd提供给用户处理缺页异常的一个正常功能，最开始是用于虚拟机迁移场景。但后来不断被攻击者用于漏洞的利用：当发生page fault的时候，内核会暂停处理，等待用户对userfaultfd的回调处理完毕后再进行往下执行，利用这个暂停，攻击者就可以提高类似UAF的漏洞利用。因为UAF通常是多线程环境下产生的，为了稳定利用漏洞，攻击者需要在free之后，used之前替换目标的内存，利用suserfaultfd技术可以比较容易实现这一点。具体可以参考<a target="_blank" rel="noopener" href="http://brieflyx.me/2020/linux-tools/userfaultfd-internals/">Linux Kernel Userfaultfd 内部机制探究</a></p>
-<h2 id="userfaultfd限制"><a href="#userfaultfd限制" class="headerlink" title="userfaultfd限制"></a>userfaultfd限制</h2><p>在2019年，有人提交了一个<a target="_blank" rel="noopener" href="https://lwn.net/Articles/782745/">补丁</a>对userfaultfd的使用进行了限制</p>
-<img src="/2023/05/09/userfaultdf-forbid-unprivileged-users/userfaultfd_unprivileaged_users.png" class title="userfaultfd限制">
-<p>因此，在我们的漏洞利用中，建议先通过命令</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /proc/sys/vm/unprivileged_userfaultfd</span><br></pre></td></tr></table></figure>
-
-<p>检查是否允许非特权用户调用userfaultfd</p>
-<img src="/2023/05/09/userfaultdf-forbid-unprivileged-users/userfaultfd_disable.png" class title="userfaultfd禁用">
-<p>0表示禁用，这种情况下，只能通过其它方式进行漏洞利用了。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1281,7 +1275,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-count">14</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1294,7 +1288,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">22</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1342,12 +1336,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">32k</span>
+    <span title="站点总字数">33k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">29 分钟</span>
+    <span title="站点阅读时长">30 分钟</span>
 </div>
 
         
