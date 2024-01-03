@@ -27,14 +27,14 @@
 <meta property="og:site_name" content="冷霜飞">
 <meta property="og:description" content="关于CVE-2022-20421CVE-2022-20421是一个最近一个关于Android Binder驱动的一个UAF漏洞，作者在OffensiveCon 23上进行了详细的分享,漏洞利用过程的详细介绍,同时，也公布了相应的EXP.这是一个非常复杂的漏洞利用，后续时间允许的话，再写一篇关于该漏洞的详细利用过程． 简单来说，这是一个关于队列自旋锁(queued spinlock)的UAF,触发场">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://lengshuangfei.top/bypass-selinux-by-overwrite-avc-cache/struct_avc_cache.png">
+<meta property="og:image" content="https://lengshuangfei.top/2024/01/02/bypass-selinux-by-overwrite-avc-cache/struct_avc_cache.png">
 <meta property="article:published_time" content="2024-01-02T02:38:21.000Z">
-<meta property="article:modified_time" content="2024-01-02T04:01:19.818Z">
+<meta property="article:modified_time" content="2024-01-03T01:44:13.255Z">
 <meta property="article:author" content="冷霜飞">
 <meta property="article:tag" content="selinux">
 <meta property="article:tag" content="avc_cache">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://lengshuangfei.top/bypass-selinux-by-overwrite-avc-cache/struct_avc_cache.png">
+<meta name="twitter:image" content="https://lengshuangfei.top/2024/01/02/bypass-selinux-by-overwrite-avc-cache/struct_avc_cache.png">
 
 <link rel="canonical" href="https://lengshuangfei.top/2024/01/02/bypass-selinux-by-overwrite-avc-cache/">
 
@@ -215,10 +215,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2024-01-02 10:38:21 / 修改时间：12:01:19" itemprop="dateCreated datePublished" datetime="2024-01-02T10:38:21+08:00">2024-01-02</time>
+              <time title="创建时间：2024-01-02 10:38:21" itemprop="dateCreated datePublished" datetime="2024-01-02T10:38:21+08:00">2024-01-02</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-01-03 09:44:13" itemprop="dateModified" datetime="2024-01-03T09:44:13+08:00">2024-01-03</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -277,17 +283,11 @@
 <p>以上命令不需要root权限．</p>
 <p>多数手机厂商为了安全，一般都不会开启以上两个编译参数．在这种情况下，目前绕过selinux的方法有：</p>
 <ol>
-<li><p>代码审计或者逆向，查看selinuxa权限检查过程中，是否存在可以关闭selinux的全局变量，如果存在，则可以通过AAW修改该全局变量的值来绕过selinux<br>一般来说，权限检查都会调用到函数avc_has_perm,重点审计该函数．比如三星手机就有一个全局变量来控制–ss_initialized,通过将该变量修改为０，再利用libsepol API添加selinux的自定义策略就可以绕过selinux.详细技术细节可以参考作者的<a target="_blank" rel="noopener" href="https://www.blackhat.com/docs/us-17/thursday/us-17-Shen-Defeating-Samsung-KNOX-With-Zero-Privilege-wp.pdf">分享材料</a></p>
-</li>
-<li><p>通过修改security_hook_heads的函数为null<br>详细技术细节可以参考以下<a target="_blank" rel="noopener" href="https://www.iceswordlab.com/2018/04/20/samsung-root/">博客</a>.但没有详细的exp代码</p>
-</li>
-<li><p>通过修改当前的selinux缓存策略，然后添加自定义策略<br>可以参考CVE-2019-2215在三星S8上的<a target="_blank" rel="noopener" href="https://github.com/chompie1337/s8_2019_2215_poc/">利用</a><br>在方法3)中，有以下地方需要注意：</p>
-</li>
-<li><p>原poc中是通过获取avc_cache这种全局变量的地址后，反推得到av_decision的地址<br>但是，并不是所有的手机上avc_cache都是一个全局变量，似乎仅有三星上如此．因此，需要通过selinux_state-&gt;avc-&gt;avc_cache来获得avc_cache的地址，因为selinux_state在绝大部分手机上都是一个全局的变量．</p>
-</li>
-<li><p>原poc的DECISION_AVC_CACHE_OFFSET是怎么来的？<br>struct avc_cache的结构如下所示：<br><img src="/Jandroid-setup/../bypass-selinux-by-overwrite-avc-cache/struct_avc_cache.png" alt="struct_avc_cache"><br>也就是说，每一个pAvcCacheSlot指向的是avc_node的list,并不是指向avc_node，所以需要先减去40，得到avc_node的i地址，然后再偏移12，得到av_decision的地址<br>所以，DECISION_AVC_CACHE_OFFSET＝40 - 12 &#x3D; 28 &#x3D; 0x1C</p>
-</li>
+<li>代码审计或者逆向，查看selinuxa权限检查过程中，是否存在可以关闭selinux的全局变量，如果存在，则可以通过AAW修改该全局变量的值来绕过selinux<br>一般来说，权限检查都会调用到函数avc_has_perm,重点审计该函数．比如三星手机就有一个全局变量来控制–ss_initialized,通过将该变量修改为０，再利用libsepol API添加selinux的自定义策略就可以绕过selinux.详细技术细节可以参考作者的<a target="_blank" rel="noopener" href="https://www.blackhat.com/docs/us-17/thursday/us-17-Shen-Defeating-Samsung-KNOX-With-Zero-Privilege-wp.pdf">分享材料</a></li>
+<li>通过修改security_hook_heads的函数为null<br>详细技术细节可以参考以下<a target="_blank" rel="noopener" href="https://www.iceswordlab.com/2018/04/20/samsung-root/">博客</a>.但没有详细的exp代码</li>
+<li>通过修改当前的selinux缓存策略，然后添加自定义策略<br>可以参考CVE-2019-2215在三星S8上的<a target="_blank" rel="noopener" href="https://github.com/chompie1337/s8_2019_2215_poc/">利用</a><br>在方法3)中，有以下地方需要注意：</li>
 </ol>
+<p>1 原poc中是通过获取avc_cache这全局变量的地址后，反推得到av_decision的地址<br>   但是，并不是所有的手机上avc_cache都是一个全局变量，似乎仅有三星上如此．因此，需要通过selinux_state-&gt;avc-&gt;avc_cache来获得avc_cache的地址，因为selinux_state在绝大部分手机上都是一个全局的变量．<br>2 原poc的DECISION_AVC_CACHE_OFFSET是怎么来的？<br>   struct avc_cache的结构如下所示：<br>   <img src="/2024/01/02/bypass-selinux-by-overwrite-avc-cache/struct_avc_cache.png" class title="struct_avc_cache"><br>   也就是说，每一个pAvcCacheSlot指向的是avc_node的list,并不是指向avc_node，所以需要先减去40，得到avc_node的i地址，然后再偏移12，得到av_decision的地址<br>   所以，DECISION_AVC_CACHE_OFFSET＝40 - 12 &#x3D; 28 &#x3D; 0x1C</p>
 
     </div>
 
