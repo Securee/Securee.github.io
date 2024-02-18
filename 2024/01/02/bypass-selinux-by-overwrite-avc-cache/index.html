@@ -20,16 +20,16 @@
     var CONFIG = {"hostname":"lengshuangfei.top","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="关于CVE-2022-20421CVE-2022-20421是一个最近一个关于Android Binder驱动的一个UAF漏洞，作者在OffensiveCon 23上进行了详细的分享,漏洞利用过程的详细介绍,同时，也公布了相应的EXP.这是一个非常复杂的漏洞利用，后续时间允许的话，再写一篇关于该漏洞的详细利用过程． 简单来说，这是一个关于队列自旋锁(queued spinlock)的UAF,触发场">
+  <meta name="description" content="关于CVE-2022-20421CVE-2022-20421是最近一个关于Android Binder驱动的一个UAF漏洞，作者在OffensiveCon 23上进行了详细的分享,漏洞利用过程的详细介绍,同时，也公布了相应的EXP.这是一个非常复杂的漏洞利用，后续时间允许的话，再写一篇关于该漏洞的详细利用过程． 简单来说，这是一个关于队列自旋锁(queued spinlock)的UAF,触发场景是">
 <meta property="og:type" content="article">
 <meta property="og:title" content="通过修改avc_cache绕过selinux">
 <meta property="og:url" content="https://lengshuangfei.top/2024/01/02/bypass-selinux-by-overwrite-avc-cache/index.html">
 <meta property="og:site_name" content="冷霜飞">
-<meta property="og:description" content="关于CVE-2022-20421CVE-2022-20421是一个最近一个关于Android Binder驱动的一个UAF漏洞，作者在OffensiveCon 23上进行了详细的分享,漏洞利用过程的详细介绍,同时，也公布了相应的EXP.这是一个非常复杂的漏洞利用，后续时间允许的话，再写一篇关于该漏洞的详细利用过程． 简单来说，这是一个关于队列自旋锁(queued spinlock)的UAF,触发场">
+<meta property="og:description" content="关于CVE-2022-20421CVE-2022-20421是最近一个关于Android Binder驱动的一个UAF漏洞，作者在OffensiveCon 23上进行了详细的分享,漏洞利用过程的详细介绍,同时，也公布了相应的EXP.这是一个非常复杂的漏洞利用，后续时间允许的话，再写一篇关于该漏洞的详细利用过程． 简单来说，这是一个关于队列自旋锁(queued spinlock)的UAF,触发场景是">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://lengshuangfei.top/2024/01/02/bypass-selinux-by-overwrite-avc-cache/struct_avc_cache.png">
 <meta property="article:published_time" content="2024-01-02T02:38:21.000Z">
-<meta property="article:modified_time" content="2024-01-03T01:57:22.900Z">
+<meta property="article:modified_time" content="2024-02-18T03:58:03.959Z">
 <meta property="article:author" content="冷霜飞">
 <meta property="article:tag" content="selinux">
 <meta property="article:tag" content="avc_cache">
@@ -223,7 +223,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-01-03 09:57:22" itemprop="dateModified" datetime="2024-01-03T09:57:22+08:00">2024-01-03</time>
+                <time title="修改时间：2024-02-18 11:58:03" itemprop="dateModified" datetime="2024-02-18T11:58:03+08:00">2024-02-18</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -267,11 +267,11 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="关于CVE-2022-20421"><a href="#关于CVE-2022-20421" class="headerlink" title="关于CVE-2022-20421"></a>关于CVE-2022-20421</h2><p>CVE-2022-20421是一个最近一个关于Android Binder驱动的一个UAF漏洞，作者在OffensiveCon 23上进行了详细的<a target="_blank" rel="noopener" href="https://0xkol.github.io/assets/files/OffensiveCon23_Racing_Against_the_Lock__Exploiting_Spinlock_UAF_in_the_Android_Kernel.pdf">分享</a>,漏洞利用过程的详细<a target="_blank" rel="noopener" href="https://0xkol.github.io/assets/files/Racing_Against_the_Lock__Exploiting_Spinlock_UAF_in_the_Android_Kernel.pdf">介绍</a>,同时，也公布了相应的<a target="_blank" rel="noopener" href="https://github.com/0xkol/badspin">EXP</a>.这是一个非常复杂的漏洞利用，后续时间允许的话，再写一篇关于该漏洞的详细利用过程．</p>
+        <h2 id="关于CVE-2022-20421"><a href="#关于CVE-2022-20421" class="headerlink" title="关于CVE-2022-20421"></a>关于CVE-2022-20421</h2><p>CVE-2022-20421是最近一个关于Android Binder驱动的一个UAF漏洞，作者在OffensiveCon 23上进行了详细的<a target="_blank" rel="noopener" href="https://0xkol.github.io/assets/files/OffensiveCon23_Racing_Against_the_Lock__Exploiting_Spinlock_UAF_in_the_Android_Kernel.pdf">分享</a>,漏洞利用过程的详细<a target="_blank" rel="noopener" href="https://0xkol.github.io/assets/files/Racing_Against_the_Lock__Exploiting_Spinlock_UAF_in_the_Android_Kernel.pdf">介绍</a>,同时，也公布了相应的<a target="_blank" rel="noopener" href="https://github.com/0xkol/badspin">EXP</a>.这是一个非常复杂的漏洞利用，后续时间允许的话，再写一篇关于该漏洞的详细利用过程．</p>
 <p>简单来说，这是一个关于队列自旋锁(queued spinlock)的UAF,触发场景是：进程A将一个指向进程C的handle分享给进程B的时候，如果进程Ｂ在该传输过程中退出，将会导致内核创建的binder_ref包含一个执行了已经退出的proc，而在进程C退出开始清理资源时候，访问了该proc的一个内部锁inner_lock,从而导致了UAF．</p>
 <p>作者在他的漏洞利用过程中，使用多种技术，将队列自旋锁的UAF可以导致的修改内存最低两个字节为０的利用原语，转化为TTY write buffer的UAF,搭配pipe_buffer,实现了任意地址读写AAR&#x2F;AAW,获得了手机的root权限．</p>
-<h2 id="selinux终结了root的上帝视角"><a href="#selinux终结了root的上帝视角" class="headerlink" title="selinux终结了root的上帝视角"></a>selinux终结了root的上帝视角</h2><p>在仅有DAC的时代，获得设备的root,也就意味着可以完全统治了该设备，直到MAC的出现．而现在手机默认开启了selinux这个MAC策略．获得了ｒｏｏｔ后，能做的事情其实很有限，所以手机上的内核漏洞利用最后一步都需要想办法绕过selinux.</p>
-<p>大部分内核漏洞利用中，在获取root权限的时候，通常都是利用AAR&#x2F;AAW获取一个root进程的cred，然后将提权进程的cred修改为root进程的credｄ，比如init进程，该进程的pid总是１，很容易定位到该进程．</p>
+<h2 id="selinux终结了root的上帝视角"><a href="#selinux终结了root的上帝视角" class="headerlink" title="selinux终结了root的上帝视角"></a>selinux终结了root的上帝视角</h2><p>在仅有DAC的时代，获得设备的root,也就意味着可以完全统治了该设备，直到MAC的出现．而现在手机默认开启了selinux这个MAC策略．获得了root后，能做的事情其实很有限，所以手机上的内核漏洞利用最后一步都需要想办法绕过selinux.</p>
+<p>大部分内核漏洞利用中，在获取root权限的时候，通常都是利用AAR&#x2F;AAW获取一个root进程的cred，然后将提权进程的cred修改为root进程的cred，比如init进程，该进程的pid总是１，很容易定位到该进程．</p>
 <p>但是，目前init进程也不是万能的，尤其是该进程初始化的第２个阶段，会在应用selinux策略后，将自己的权限进行了下降，所以，即使获得了根init进程一样的权限，也无法绕过selinux.</p>
 <h2 id="绕过selinux"><a href="#绕过selinux" class="headerlink" title="绕过selinux"></a>绕过selinux</h2><p>因此，绕过selinuxg成为内核漏洞利用过程中逃避的技术堡垒．不同的手机厂商对于selinux会开启不同的安全配置，甚至通过其它技术，比如TEE来增强selinux.<br>常见的安全配置包括：</p>
 <ol>
