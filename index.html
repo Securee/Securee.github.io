@@ -186,6 +186,102 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2024/03/14/createPackageContext-exploit/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="冷霜飞">
+      <meta itemprop="description" content="秋阴不敌霜飞晚，留得残荷听雨声">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="冷霜飞">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/03/14/createPackageContext-exploit/" class="post-title-link" itemprop="url">基于createPackageContext的漏洞利用</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2024-03-14 12:00:48 / 修改时间：16:35:04" itemprop="dateCreated datePublished" datetime="2024-03-14T12:00:48+08:00">2024-03-14</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/" itemprop="url" rel="index"><span itemprop="name">漏洞利用</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="关于createPackageContext"><a href="#关于createPackageContext" class="headerlink" title="关于createPackageContext"></a>关于createPackageContext</h2><p>createPackageContext[<a target="_blank" rel="noopener" href="https://developer.android.com/reference/android/content/Context#createPackageContext(java.lang.String,%20int)]%E8%BF%99%E4%B8%AA%E6%8E%A5%E5%8F%A3%E4%BB%8E%E5%90%8D%E5%AD%97%E5%8F%AF%E4%BB%A5%E7%8C%9C%E6%B5%8B%E5%87%BA%E6%9D%A5%EF%BC%9A%E6%A0%B9%E6%8D%AE%E4%BC%A0%E5%85%A5%E5%8C%85%E5%90%8D%E5%88%9B%E5%BB%BA%E8%AF%A5%E5%BA%94%E7%94%A8%E7%9A%84%E4%B8%8A%E4%B8%8B%E6%96%87%EF%BC%8C%E5%9C%A8%E8%8E%B7%E5%BE%97%E5%BA%94%E7%94%A8%E7%9A%84%E4%B8%8A%E4%B8%8B%E6%96%87%E5%90%8E%EF%BC%8C%E5%B0%B1%E5%8F%AF%E4%BB%A5%E8%BF%9B%E4%B8%80%E6%AD%A5%E8%B0%83%E7%94%A8%E6%88%96%E8%80%85%E8%8E%B7%E5%8F%96%E8%AF%A5%E5%BA%94%E7%94%A8%E7%9A%84%E8%B5%84%E6%BA%90%EF%BC%8C%E7%94%9A%E8%87%B3%E4%BB%A3%E7%A0%81%EF%BC%8E%E5%BD%93%E7%84%B6%EF%BC%8C%E8%BF%99%E5%8F%96%E5%86%B3%E4%BA%8E%E7%AC%AC%E4%BA%8C%E4%B8%AA%E5%8F%82%E6%95%B0%EF%BC%9A">https://developer.android.com/reference/android/content/Context#createPackageContext(java.lang.String,%20int)]这个接口从名字可以猜测出来：根据传入包名创建该应用的上下文，在获得应用的上下文后，就可以进一步调用或者获取该应用的资源，甚至代码．当然，这取决于第二个参数：</a><br>CONTEXT_IGNORE_SECURITY：在创建上下文时候忽略任何安全限制，值是0x00000002<br>CONTEXT_INCLUDE_CODE：允许将被加载的应用的代码load到调用者的进程里执行，值是0x00000001<br>正如Google所警告的那样，同时使用CONTEXT_IGNORE_SECURITY和ONTEXT_INCLUDE_CODE是极其危险的．</p>
+<img src="/2024/03/14/createPackageContext-exploit/CONTEXT_INCLUDE_CODE.png" class title="CONTEXT_INCLUDE_CODE">
+
+<h2 id="基于createPackageContext的漏洞模式"><a href="#基于createPackageContext的漏洞模式" class="headerlink" title="基于createPackageContext的漏洞模式"></a>基于createPackageContext的漏洞模式</h2><p>根据createPackageContext的功能，我们可以得知：如果一个特权进程在调用createPackageContext时候，第一个参数，也即是应用包名是攻击者可以控制的，那么就有可能让特权进程加载恶意代码，从而实现提权．<br>包名可被攻击者控制有两种可能：<br>１）包名来自于对外暴露的组件<br>比如Activity,Service,ContentProvider,Receiver(包括动态注册的Receiver)<br>２）伪造包名<br>如果调用者在调用createPackageContext前，并没有校验被调用的应用是否存在，那么攻击者就可以伪造该应用．此外，即使使用了包名校验，但没有校验签名，那么对于非系统应用，攻击者可能会通过覆盖方式令调用者加载了恶意的应用代码．或者校验包名的时候，使用了不安全的校验方法，包括但不限于：<br>String.beginwith<br>String.contain<br>String.endwith<br>这样的例子，可以参考oversecured上的一个<a target="_blank" rel="noopener" href="https://blog.oversecured.com/Android-arbitrary-code-execution-via-third-party-package-contexts/">博客</a></p>
+<h2 id="关于createPackageContext的漏洞利用"><a href="#关于createPackageContext的漏洞利用" class="headerlink" title="关于createPackageContext的漏洞利用"></a>关于createPackageContext的漏洞利用</h2><p>一般情况下，调用者使用createPackageContext的顺序是：<br>１）调用createPackageContext,获得目标应用的上下文Context;<br>２）利用目标应用的上下文Context，调用getClassLoader;<br>３）根据getClassLoader,通过loadClass加载获得目标类对象<br>４）根据类对象调用getMethod获取方法&#x2F;函数;<br>５）最后，调用invoke将代码load到调用者进程内执行<br>总的来说，就是通过反射方式将目标应用的代码load到调用者的进程上下文来执行．<br>比如：</p>
+<img src="/2024/03/14/createPackageContext-exploit/createPackageContext_example.png" class title="createPackageContext_example">
+<p>对于这种模式的漏洞利用，那非常简单，伪造包名后，在该应用了创建相应的类和方法即可：</p>
+<img src="/2024/03/14/createPackageContext-exploit/exploit_example_1.png" class title="exploit_example_1">
+
+<h2 id="一种更加通用的漏洞利用方法"><a href="#一种更加通用的漏洞利用方法" class="headerlink" title="一种更加通用的漏洞利用方法"></a>一种更加通用的漏洞利用方法</h2><p>在我们的常规理解里，调用者必须显式调用invoke来调用目标类的函数的时候，目标应用的代码才会加载到调用者进程的上下文，如果调用createPackageContext和getClassloader后必须在满足某些特定条件下才会执行后续的步骤，而这些特定条件可能是攻击者无法构造和满足的，这个情况下是否就无法利用了呢？<br>简而言之，就是仅调用了getClassLoader能否做得任意代码执行？<br>答案是肯定的．<br>这里先给出漏洞利用的方法：<br>１）在攻击APK的AndroidManifest.xml添加android:appComponentFactory属性</p>
+<img src="/2024/03/14/createPackageContext-exploit/androidmanifest_config.png" class title="androidmanifest_config">
+<p>其中，tools:replace&#x3D;”android:appComponentFactory”是固定的<br>android:appComponentFactory&#x3D;”oversecured.plugin.hcsl.hacker”中的”oversecured.plugin.hcsl.hacker”可以替换为您的自定义的攻击代码的类名<br>２）在类”oversecured.plugin.hcsl.hacker”的实现中，令其继承自AppComponentFactory<br>３）重载实现instantiateClassLoader接口，并在实现中实现攻击</p>
+<img src="/2024/03/14/createPackageContext-exploit/exploit_example_2.png" class title="exploit_example_2">
+<p>其余的５个接口，instantiateApplication，instantiateProvider，instantiateActivity，instantiateReceiver，instantiateService，直接return super.xxx同名接口即可</p>
+<h2 id="appComponentFactory属性的由来"><a href="#appComponentFactory属性的由来" class="headerlink" title="appComponentFactory属性的由来"></a>appComponentFactory属性的由来</h2><p>从功能上来说，这个属性是为了应用在创建和初始化的时候，先调用appComponentFactory属性指定的类，这个类在实现的时候需要继承AppComponentFactory，一共６个接口：<br>instantiateClassLoader：初始化ClassLoader,开发者可以在这个接口修改ClassLoader<br>instantiateApplication:初始化Application<br>instantiateProvider，instantiateActivity，instantiateReceiver，instantiateService对应四大组件的初始化．开发者完全可以在这４个接口里传入自定义一些参数，然后传递给相应的组件的onCreate入口函数，比如这个<a target="_blank" rel="noopener" href="https://iamjegul.medium.com/android-appcomponentfactory-f2c1b3d56083">例子</a>.<br>从安全防护来说，有的加壳平台就是通过这个属性来实现脱壳<a target="_blank" rel="noopener" href="https://bbs.kanxue.com/thread-268008.htm">解密</a>.</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2024/01/02/bypass-selinux-by-overwrite-avc-cache/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1140,98 +1236,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2023/05/17/get-apks-python-script/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="冷霜飞">
-      <meta itemprop="description" content="秋阴不敌霜飞晚，留得残荷听雨声">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="冷霜飞">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/05/17/get-apks-python-script/" class="post-title-link" itemprop="url">通过python脚本一键获取手机中的APK</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2023-05-17 20:01:28" itemprop="dateCreated datePublished" datetime="2023-05-17T20:01:28+08:00">2023-05-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-02-18 11:53:15" itemprop="dateModified" datetime="2024-02-18T11:53:15+08:00">2024-02-18</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%B7%A5%E5%85%B7%E8%84%9A%E6%9C%AC/" itemprop="url" rel="index"><span itemprop="name">工具脚本</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>3.3k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>3 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在移动终端的漏洞挖掘中，通常需要对系统的APK进行逆向分析，而在使用jadx、GDA进行逆向分析之前，首先得将APK的安装包拖到本地。<br>2024.02.18更新：添加获取SYSTEMSERVICECLASSPATH,DEX2OATBOOTCLASSPATH以及BOOTCLASSPATH三个环境变量的jar包（在分析系统接口时候需要这些对jar包进行逆向分析）</p>
-<h2 id="利用脚本一键获取手机中的APK安装包"><a href="#利用脚本一键获取手机中的APK安装包" class="headerlink" title="利用脚本一键获取手机中的APK安装包"></a>利用脚本一键获取手机中的APK安装包</h2><p>前提条件：<br>    不管是Window还是Linux系统，首先确保adb工具已经安装并且在系统环境变量中。如果是首次使用adb连接手机，确认手机开启了开发者调试模式并且进行了连接授权。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> subprocess</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">getAPKs</span>():</span><br><span class="line">    packages = subprocess.Popen(<span class="string">&#x27;adb shell pm list package -f&#x27;</span>, shell=<span class="literal">True</span>, stdout=subprocess.PIPE, stderr=subprocess.PIPE)</span><br><span class="line">    return_code = packages.poll()</span><br><span class="line">    package_list = []</span><br><span class="line">    <span class="keyword">while</span> return_code <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        line = packages.stdout.readline()</span><br><span class="line">        return_code = packages.poll()</span><br><span class="line">        line = line.strip()</span><br><span class="line">        <span class="keyword">if</span> line:</span><br><span class="line">            package_list.append(line)</span><br><span class="line">    <span class="keyword">return</span> package_list</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pull_apk_from_device</span>(<span class="params">package_list, out_dir</span>):</span><br><span class="line">    apk_path = out_dir + <span class="string">&quot;APKs&quot;</span></span><br><span class="line">    os.mkdir(apk_path)</span><br><span class="line">    <span class="keyword">if</span> package_list <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">for</span> package <span class="keyword">in</span> package_list:</span><br><span class="line">            temp = package.decode(<span class="string">&#x27;utf-8&#x27;</span>).split(<span class="string">&#x27;:&#x27;</span>)[<span class="number">1</span>]</span><br><span class="line">            path = temp.rsplit(<span class="string">&#x27;=&#x27;</span>, <span class="number">1</span>)[<span class="number">0</span>]</span><br><span class="line">            package_name = temp.rsplit(<span class="string">&#x27;=&#x27;</span>, <span class="number">1</span>)[<span class="number">1</span>]</span><br><span class="line">            <span class="built_in">print</span>(path)</span><br><span class="line">            <span class="built_in">print</span>(package_name)</span><br><span class="line">            cmd = <span class="string">&quot;adb pull &quot;</span> + path + <span class="string">&quot; &quot;</span> + apk_path + <span class="string">&quot;//&quot;</span> + package_name + <span class="string">&quot;.apk&quot;</span></span><br><span class="line">            result = subprocess.Popen(cmd, shell=<span class="literal">True</span>, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()</span><br><span class="line">            <span class="built_in">print</span>(result)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Done&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pull_jar_from_device</span>(<span class="params">out_dir</span>):</span><br><span class="line">    <span class="comment"># 获取SYSTEMSERVICECLASSPATH环境变量的jar包</span></span><br><span class="line">    system_service_classpath = out_dir + <span class="string">&quot;system_service_classpath&quot;</span></span><br><span class="line">    os.mkdir(system_service_classpath)</span><br><span class="line">    f = subprocess.Popen(<span class="string">&#x27;adb shell echo $SYSTEMSERVICECLASSPATH&#x27;</span>, shell=<span class="literal">True</span>, stdout=subprocess.PIPE, stderr=subprocess.PIPE)</span><br><span class="line">    outputs = f.stdout.read()</span><br><span class="line">    <span class="keyword">if</span> outputs <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        jars = outputs.decode(<span class="string">&#x27;utf-8&#x27;</span>).split(<span class="string">&#x27;:&#x27;</span>)</span><br><span class="line">        <span class="keyword">for</span> jar <span class="keyword">in</span> jars:</span><br><span class="line">            cmd = <span class="string">&quot;adb pull &quot;</span> + jar + <span class="string">&quot; &quot;</span> + system_service_classpath + <span class="string">&quot;\\&quot;</span></span><br><span class="line">            result = subprocess.Popen(cmd, shell=<span class="literal">True</span>, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()</span><br><span class="line">            <span class="built_in">print</span>(result)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 获取DEX2OATBOOTCLASSPATH环境变量的jar包</span></span><br><span class="line">    outputs = <span class="literal">None</span></span><br><span class="line">    dex2oat_boot_classpath = out_dir + <span class="string">&quot;dex2oat_boot_classpath&quot;</span></span><br><span class="line">    os.mkdir(dex2oat_boot_classpath)</span><br><span class="line">    f = subprocess.Popen(<span class="string">&#x27;adb shell echo $DEX2OATBOOTCLASSPATH&#x27;</span>, shell=<span class="literal">True</span>, stdout=subprocess.PIPE, stderr=subprocess.PIPE)</span><br><span class="line">    outputs = f.stdout.read()</span><br><span class="line">    <span class="keyword">if</span> outputs <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        jars = outputs.decode(<span class="string">&#x27;utf-8&#x27;</span>).split(<span class="string">&#x27;:&#x27;</span>)</span><br><span class="line">        <span class="keyword">for</span> jar <span class="keyword">in</span> jars:</span><br><span class="line">            cmd = <span class="string">&quot;adb pull &quot;</span> + jar + <span class="string">&quot; &quot;</span> + dex2oat_boot_classpath + <span class="string">&quot;\\&quot;</span></span><br><span class="line">            result = subprocess.Popen(cmd, shell=<span class="literal">True</span>, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()</span><br><span class="line">            <span class="built_in">print</span>(result)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 获取BOOTCLASSPATH环境变量的jar包</span></span><br><span class="line">    outputs = <span class="literal">None</span></span><br><span class="line">    boot_classpath = out_dir + <span class="string">&quot;boot_classpath&quot;</span></span><br><span class="line">    os.mkdir(boot_classpath)</span><br><span class="line">    f = subprocess.Popen(<span class="string">&#x27;adb shell echo $DEX2OATBOOTCLASSPATH&#x27;</span>, shell=<span class="literal">True</span>, stdout=subprocess.PIPE, stderr=subprocess.PIPE)</span><br><span class="line">    outputs = f.stdout.read()</span><br><span class="line">    <span class="keyword">if</span> outputs <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        jars = outputs.decode(<span class="string">&#x27;utf-8&#x27;</span>).split(<span class="string">&#x27;:&#x27;</span>)</span><br><span class="line">        <span class="keyword">for</span> jar <span class="keyword">in</span> jars:</span><br><span class="line">            cmd = <span class="string">&quot;adb pull &quot;</span> + jar + <span class="string">&quot; &quot;</span> + boot_classpath + <span class="string">&quot;\\&quot;</span></span><br><span class="line">            result = subprocess.Popen(cmd, shell=<span class="literal">True</span>, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()</span><br><span class="line">            <span class="built_in">print</span>(result)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    saved_dir = <span class="string">&quot;/home/lzy/Pixel4XL_android13&quot;</span></span><br><span class="line">    package_list = getAPKs()</span><br><span class="line">    pull_apk_from_device(package_list,saved_dir)</span><br><span class="line">    pull_jar_from_device(saved_dir)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>在实际使用过程中，请将路径“&#x2F;home&#x2F;lzy&#x2F;Pixel4XL_android13”替换为您实际使用对路径。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1303,7 +1307,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-count">16</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1316,7 +1320,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-count">26</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1364,12 +1368,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">37k</span>
+    <span title="站点总字数">39k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">34 分钟</span>
+    <span title="站点阅读时长">36 分钟</span>
 </div>
 
         
