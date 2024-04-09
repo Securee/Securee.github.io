@@ -211,7 +211,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2024-04-09 09:53:52 / 修改时间：11:29:41" itemprop="dateCreated datePublished" datetime="2024-04-09T09:53:52+08:00">2024-04-09</time>
+              <time title="创建时间：2024-04-09 09:53:52 / 修改时间：11:33:10" itemprop="dateCreated datePublished" datetime="2024-04-09T09:53:52+08:00">2024-04-09</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -260,7 +260,7 @@
 <img src="/2024/04/09/how-to-reproduce-pixel-gpu-exploit/id_command.png" class title="id command">
 <p>检查SElinux状态：</p>
 <img src="/2024/04/09/how-to-reproduce-pixel-gpu-exploit/getenforce_command.png" class title="selinux state">
-<p>当期的SElinux的确已经被修改为Permissive．<br>但是，如果想修改kptr_restrict，进而获得一些当期系统的符号地址信息时候：</p>
+<p>当a前的SElinux的确已经被修改为Permissive．<br>但是，如果想修改kptr_restrict，进而获得一些当前系统的符号地址信息时候：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo 0 /proc/sys/kernel/kptr_restrict</span><br></pre></td></tr></table></figure>
 
 <p>但是，再次获取该属性的值：</p>
