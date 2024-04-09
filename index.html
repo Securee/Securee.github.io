@@ -211,7 +211,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2024-04-09 09:53:52 / 修改时间：11:36:44" itemprop="dateCreated datePublished" datetime="2024-04-09T09:53:52+08:00">2024-04-09</time>
+              <time title="创建时间：2024-04-09 09:53:52 / 修改时间：16:58:58" itemprop="dateCreated datePublished" datetime="2024-04-09T09:53:52+08:00">2024-04-09</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -229,7 +229,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>2k</span>
+              <span>2.2k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -285,6 +285,12 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">python kallsyms_finder.py vmlinux | grep &quot;kthreadd_task&quot;</span><br><span class="line">python kallsyms_finder.py vmlinux | grep &quot;selinux_state&quot;</span><br><span class="line">python kallsyms_finder.py vmlinux | grep &quot;anon_pipe_buf_ops&quot;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 <p>最后将获得的地址减去基地址，即可获得在镜像中的偏移值，该偏移值也是运行时的偏移值，因此只要泄漏了一个内核符号的运行时地址，就可以绕过KASLR.</p>
+<p>至于task_struct内的成员变量的偏移，得自行编译kernel,拿到包含调试信息的vmlinux后，再使用</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pahole vmlinux -C task_struct</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>而在这个漏洞利用中，如果是适配Pixel 8,则不需要编译kernel,因为Pixel 8和Pixel 8 pro使用相同的内核分支：</p>
+<img src="/2024/04/09/how-to-reproduce-pixel-gpu-exploit/kernel_branch.png" class title="kernel branch">
+<p>因此，Pixel 8的task_struct内的成员变量的偏移可以直接使用Pixel 8 pro的</p>
 
       
     </div>
