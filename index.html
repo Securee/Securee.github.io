@@ -217,7 +217,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-04-12 08:53:17" itemprop="dateModified" datetime="2024-04-12T08:53:17+08:00">2024-04-12</time>
+                <time title="修改时间：2024-04-12 09:54:16" itemprop="dateModified" datetime="2024-04-12T09:54:16+08:00">2024-04-12</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -235,14 +235,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>3.6k</span>
+              <span>3.9k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>3 分钟</span>
+              <span>4 分钟</span>
             </span>
 
         </div>
@@ -303,8 +303,20 @@
 
 <p>获得．<br>比如：google&#x2F;shiba&#x2F;shiba:14&#x2F;UD1A.230803.041&#x2F;10808477:user&#x2F;release-keys，构建版本是10808477，但是，如果直接替换以上的脚本，却发现无法找到，提示：<br>Build attempt for build_type: SUBMITTED build_id: 10808477 target_name: kernel_aarch64 build_attempt_id: latest not found</p>
 <p>我猜想，原因是：对于一款设备来说，除非是Android的大版本升级，否在，通用内核应该是不变的，那么，这个构建版本的编号应该是特定的，不大可能随着Android版本构建而变化．</p>
-<p>进一步，分析，通过搜索代码发现：<br>这个构建版本的编号，其实是在device.bazelrc文件里定义的：<br>build:download_gki –action_env&#x3D;KLEAF_DOWNLOAD_BUILD_NUMBER_MAP&#x3D;”gki_prebuilts&#x3D;10589001”</p>
-<p>那么，我们可以这样操作：<br>首先，在Pixel构建内核指定的<a target="_blank" rel="noopener" href="https://source.android.com/docs/setup/build/building-pixel-kernels">页面</a>里,找到各个版本的分支，然后下载一个版本后，用visual studio code打开，根据获得的分支信息进行代码切换，依次获取该构建版本的编号：<br>Pixel 8 (pro): android-gs-shusky-5.15-android14-d1<br>build:download_gki –action_env&#x3D;KLEAF_DOWNLOAD_BUILD_NUMBER_MAP&#x3D;”gki_prebuilts&#x3D;10589001”</p>
+<h2 id="如何获取Pixel手机的GKI镜像"><a href="#如何获取Pixel手机的GKI镜像" class="headerlink" title="如何获取Pixel手机的GKI镜像"></a>如何获取Pixel手机的GKI镜像</h2><p>对于漏洞利用来说，我们当期最希望的是获得带调试信息的vmlinux文件，进而通过工具pahole获取结构体的偏移值．<br>１　访问谷歌的GKI的构建<a target="_blank" rel="noopener" href="https://source.android.com/docs/core/architecture/kernel/gki-release-builds">网站</a>,可以看到，谷歌提供了以下的构建历史信息：</p>
+<img src="/2024/04/09/how-to-reproduce-pixel-gpu-exploit/GKI_release_histories.png" class title="GKI kernel">
+<p>android12-5.10 Releases:代表运行的内核是5.10的android12的GKI内核镜像<br>android13-5.10 Releases：代表运行的内核是5.10的android13的GKI内核镜像<br>android13-5.15 Releases：代表运行的内核是5.15的android13的GKI内核镜像<br>android14-5.15 Releases：代表运行的内核是5.15的android14的GKI内核镜像<br>android14-6.1 Releases：代表运行的内核是6.1的android14的GKI内核镜像<br>检查手机的设置　&gt; 关于手机找到对于的android版本和内核版本，然后进入相应的连接，比如android14-5.15 Releases</p>
+<p>２　选择构建的版本<br>该页面会列出哪年哪月构建的GKI内核镜像，这时候，可以根据手机的当期补丁日期，选择一个最靠近的构建版本</p>
+<img src="/2024/04/09/how-to-reproduce-pixel-gpu-exploit/GKI_choose_version.png" class title="GKI choose version">
+<p>但是，根据补丁日期来找内核镜像，并不是很准确（当然一般情况下偏移相差不会太远），如果是为了更准确拿到当期手机的GKI镜像，则可以根据</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb shell getprop ro.vendor.build.fingerprint</span><br></pre></td></tr></table></figure>
+
+<p>的输出，拿到当期手机内核的构建编号，比如10808477，那么就需要从最近往前不断地找，与10808477最接近的构建版本：</p>
+<img src="/2024/04/09/how-to-reproduce-pixel-gpu-exploit/GKK_choose_build_version.png" class title="GKI choose build version">
+
+<p>3 搜索并下载vmlinux</p>
+<img src="/2024/04/09/how-to-reproduce-pixel-gpu-exploit/get_vmlinux.png" class title="get vmlinux">
+<p>通过这种方法，可以避免漫长的内核代码下载和编译过程．</p>
 
       
     </div>
