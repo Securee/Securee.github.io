@@ -20,21 +20,21 @@
     var CONFIG = {"hostname":"lengshuangfei.top","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="目前，应用一般都会对自研模块的文件进行签名，并在软件启动时候校验签名信息，以保证软件的完整性.一些软件厂商除了使用WinVerifyTrust校验签名有效性外，还会对签名的CN字段进行校验，以便确认该文件是否是预期对证书签发（因为攻击者可能使用泄漏到网络对合法签名证书进行签名）。但是，如果仅仅通过判断CN字段是否包含特定字段，则完全可以被绕过。 工具依赖makecert.execert2spc.e">
+  <meta name="description" content="ARM Mali一些背景知识1 内存管理：　Blackhat 2023:pdf  Blog:link ARM Mali　驱动程序下载1 Mali Midgard GPU 内核驱动程序：第二代　链接2 Mali Bifrost GPU 内核驱动程序：第三代  链接3 Mali Valhall GPU 内核驱动程序：第四代  链接4 Mali GPU 内核驱动程序：        第五代  链接 AR">
 <meta property="og:type" content="article">
-<meta property="og:title" content="签名校验绕过漏洞">
-<meta property="og:url" content="https://lengshuangfei.top/2023/04/19/signature-bypass/index.html">
+<meta property="og:title" content="ARM Mali驱动的历史漏洞">
+<meta property="og:url" content="https://lengshuangfei.top/2024/04/22/arm-mali-cve/index.html">
 <meta property="og:site_name" content="冷霜飞">
-<meta property="og:description" content="目前，应用一般都会对自研模块的文件进行签名，并在软件启动时候校验签名信息，以保证软件的完整性.一些软件厂商除了使用WinVerifyTrust校验签名有效性外，还会对签名的CN字段进行校验，以便确认该文件是否是预期对证书签发（因为攻击者可能使用泄漏到网络对合法签名证书进行签名）。但是，如果仅仅通过判断CN字段是否包含特定字段，则完全可以被绕过。 工具依赖makecert.execert2spc.e">
+<meta property="og:description" content="ARM Mali一些背景知识1 内存管理：　Blackhat 2023:pdf  Blog:link ARM Mali　驱动程序下载1 Mali Midgard GPU 内核驱动程序：第二代　链接2 Mali Bifrost GPU 内核驱动程序：第三代  链接3 Mali Valhall GPU 内核驱动程序：第四代  链接4 Mali GPU 内核驱动程序：        第五代  链接 AR">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-04-19T09:19:08.117Z">
-<meta property="article:modified_time" content="2023-04-23T01:25:14.347Z">
+<meta property="article:published_time" content="2024-04-22T11:53:16.000Z">
+<meta property="article:modified_time" content="2024-04-23T09:14:07.370Z">
 <meta property="article:author" content="冷霜飞">
-<meta property="article:tag" content="WinVerifyTrust">
-<meta property="article:tag" content="绕过">
+<meta property="article:tag" content="GPU exploit">
+<meta property="article:tag" content="ARM Mali">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://lengshuangfei.top/2023/04/19/signature-bypass/">
+<link rel="canonical" href="https://lengshuangfei.top/2024/04/22/arm-mali-cve/">
 
 
 <script id="page-configurations">
@@ -47,7 +47,7 @@
   };
 </script>
 
-  <title>签名校验绕过漏洞 | 冷霜飞</title>
+  <title>ARM Mali驱动的历史漏洞 | 冷霜飞</title>
   
 
 
@@ -191,7 +191,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2023/04/19/signature-bypass/">
+    <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2024/04/22/arm-mali-cve/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -204,7 +204,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          签名校验绕过漏洞
+          ARM Mali驱动的历史漏洞
         </h1>
 
         <div class="post-meta">
@@ -214,14 +214,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2023-04-19 17:19:08" itemprop="dateCreated datePublished" datetime="2023-04-19T17:19:08+08:00">2023-04-19</time>
+              <time title="创建时间：2024-04-22 19:53:16" itemprop="dateCreated datePublished" datetime="2024-04-22T19:53:16+08:00">2024-04-22</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-04-23 09:25:14" itemprop="dateModified" datetime="2023-04-23T09:25:14+08:00">2023-04-23</time>
+                <time title="修改时间：2024-04-23 17:14:07" itemprop="dateModified" datetime="2024-04-23T17:14:07+08:00">2024-04-23</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -229,7 +229,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">漏洞模式</span></a>
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">漏洞分析</span></a>
                 </span>
             </span>
 
@@ -246,7 +246,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>784</span>
+              <span>1.6k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -265,12 +265,25 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>目前，应用一般都会对自研模块的文件进行签名，并在软件启动时候校验签名信息，以保证软件的完整性.一些软件厂商除了使用<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/wintrust/nf-wintrust-winverifytrust">WinVerifyTrust</a>校验签名有效性外，还会对签名的CN字段进行校验，以便确认该文件是否是预期对证书签发（因为攻击者可能使用泄漏到网络对合法签名证书进行签名）。但是，如果仅仅通过判断CN字段是否包含特定字段，则完全可以被绕过。</p>
-<h2 id="工具依赖"><a href="#工具依赖" class="headerlink" title="工具依赖"></a>工具依赖</h2><p>makecert.exe<br>cert2spc.exe<br>pvk2pfx.exe<br>signtool.exe<br>如果已经安装了微软对SDK，那么以上工具将会默认安装，不需要单独安装。推荐通过安装SDK方式进行安装，以避免出现依赖缺少的问题。<br>同时，为了方便使用，建议将以上工具路径添加到系统的环境变量。</p>
-<h2 id="生成自签名的根证书"><a href="#生成自签名的根证书" class="headerlink" title="生成自签名的根证书"></a>生成自签名的根证书</h2><p>makecert.exe -sv D:\mykey.pvk -n “CN&#x3D;my company name” D:\myCert.cer -a SHA256<br>注意：如果CN字段包含特殊字符，比如英文的句号.逗号,，则需要使用转义符号\将整个CN包括起来。<br>比如，-n “CN&#x3D;&quot;XXX Co., Ltd.&quot;”<br>该命令会弹出私钥保护口令，三次</p>
-<h2 id="创建spc文件"><a href="#创建spc文件" class="headerlink" title="创建spc文件"></a>创建spc文件</h2><p>cert2spc.exe D:\myCert.cer D:\mycet.spc</p>
-<h2 id="将公钥和私钥合并成一个pfx格式对s证书文件"><a href="#将公钥和私钥合并成一个pfx格式对s证书文件" class="headerlink" title="将公钥和私钥合并成一个pfx格式对s证书文件"></a>将公钥和私钥合并成一个pfx格式对s证书文件</h2><p>pvk2pfx.exe -pvk D:\mykey.pvk -pi password -spc D:\mycert.spc -pfx D:\mykey.pfx -po password</p>
-<h2 id="签署目标文件"><a href="#签署目标文件" class="headerlink" title="签署目标文件"></a>签署目标文件</h2><p>signtool.exe sign &#x2F;v &#x2F;as &#x2F;fd sha256 &#x2F;f “mykey.pfx” &#x2F;p “password” &#x2F;tr <a target="_blank" rel="noopener" href="http://timestamp.digicert.com/">http://timestamp.digicert.com</a> “myfile.exe”</p>
+        <h2 id="ARM-Mali一些背景知识"><a href="#ARM-Mali一些背景知识" class="headerlink" title="ARM Mali一些背景知识"></a>ARM Mali一些背景知识</h2><p>1 内存管理：<br>　Blackhat 2023:<a target="_blank" rel="noopener" href="https://i.blackhat.com/BH-US-23/Presentations/US-23-WANG-The-Art-of-Rooting-Android-devices-by-GPU-MMU-features.pdf?ref=blog.isosceles.com">pdf</a><br>  Blog:<a target="_blank" rel="noopener" href="https://community.arm.com/arm-community-blogs/b/graphics-gaming-and-vr-blog/posts/memory-management-on-embedded-graphics-processors">link</a></p>
+<h2 id="ARM-Mali-驱动程序下载"><a href="#ARM-Mali-驱动程序下载" class="headerlink" title="ARM Mali　驱动程序下载"></a>ARM Mali　驱动程序下载</h2><p>1 Mali Midgard GPU 内核驱动程序：第二代　<a target="_blank" rel="noopener" href="https://developer.arm.com/downloads/-/mali-drivers/midgard-kernel">链接</a><br>2 Mali Bifrost GPU 内核驱动程序：第三代  <a target="_blank" rel="noopener" href="https://developer.arm.com/downloads/-/mali-drivers/bifrost-kernel">链接</a><br>3 Mali Valhall GPU 内核驱动程序：第四代  <a target="_blank" rel="noopener" href="https://developer.arm.com/downloads/-/mali-drivers/valhall-kernel">链接</a><br>4 Mali GPU 内核驱动程序：        第五代  <a target="_blank" rel="noopener" href="https://developer.arm.com/downloads/-/mali-drivers/5th-gen-gpu-architecture-kernel">链接</a></p>
+<h2 id="ARM-Mali历史漏洞"><a href="#ARM-Mali历史漏洞" class="headerlink" title="ARM Mali历史漏洞"></a>ARM Mali历史漏洞</h2><p>ARM官网Mali的漏洞<a target="_blank" rel="noopener" href="https://developer.arm.com/Arm%20Security%20Center/Mali%20GPU%20Driver%20Vulnerabilities">列表</a></p>
+<p>1 CVE-2023-6241　–GHSL-2023-224<br>漏洞类型：UAF GPU memory in the Arm Mali GPU can be accessed after it is freed<br>修复时间：2024．03<br>测试版本：Android 14 UD1A.231105.004 pixel 8<br>漏洞分析：<a target="_blank" rel="noopener" href="https://securitylab.github.com/advisories/GHSL-2023-224_Arm_Mali/">简要分析</a><br>　　　　　<a target="_blank" rel="noopener" href="https://github.blog/2024-03-18-gaining-kernel-code-execution-on-an-mte-enabled-pixel-8/">详细分析</a><br>poc&#x2F;exp:<a target="_blank" rel="noopener" href="https://github.com/github/securitylab/tree/main/SecurityExploits/Android/Mali/CVE_2023_6241">链接</a></p>
+<p>2 CVE-2022-46395 –GHSL-2022-127<br>漏洞类型：UAF<br>修复时间：2023．05<br>测试版本：Android 13 TQ1A.230105.002 pixel 6<br>漏洞分析：<a target="_blank" rel="noopener" href="https://securitylab.github.com/advisories/GHSL-2022-127_Arm_Mali/">简要分析</a><br>　　　　　<a target="_blank" rel="noopener" href="https://github.blog/2023-05-25-rooting-with-root-cause-finding-a-variant-of-a-project-zero-bug/">详细分析</a><br>poc&#x2F;exp:<a target="_blank" rel="noopener" href="https://github.com/github/securitylab/tree/main/SecurityExploits/Android/Mali/CVE_2022_46395">链接</a></p>
+<p>3 CVE-2023-4211<br>漏洞类型：UAF<br>修复时间：2023．10<br>测试版本：<br>漏洞分析：<a target="_blank" rel="noopener" href="https://googleprojectzero.github.io/0days-in-the-wild//0day-RCAs/2023/CVE-2023-4211.html">简要分析</a><br>poc&#x2F;exp:<a target="_blank" rel="noopener" href="https://googleprojectzero.github.io/0days-in-the-wild//0day-RCAs/2023/CVE-2023-4211.html">链接</a></p>
+<p>4 CVE-2022-42716<br>漏洞类型：UAF<br>修复时间：2023．04<br>测试版本：<br>漏洞分析：<a target="_blank" rel="noopener" href="https://packetstormsecurity.com/files/170420/Arm-Mali-CSF-KBASE_REG_NO_USER_FREE-Unsafe-Use-Use-After-Free.html">简要分析</a><br>poc&#x2F;exp:<a target="_blank" rel="noopener" href="https://packetstormsecurity.com/files/170420/Arm-Mali-CSF-KBASE_REG_NO_USER_FREE-Unsafe-Use-Use-After-Free.html">链接</a></p>
+<p>5 CVE-2022-38181<br>漏洞类型：UAF<br>修复时间：2023．04<br>测试版本：<br>漏洞分析：<a target="_blank" rel="noopener" href="https://securitylab.github.com/advisories/GHSL-2022-054_Arm_Mali/">简要分析</a><br>　　　　　<a target="_blank" rel="noopener" href="https://github.blog/2023-01-23-pwning-the-all-google-phone-with-a-non-google-bug/">详细分析</a><br>poc&#x2F;exp:<a target="_blank" rel="noopener" href="https://github.com/github/securitylab/tree/main/SecurityExploits/Android/Mali/CVE_2022_38181">链接</a></p>
+<p>6 GHSL-2023-005<br>漏洞类型：UAF<br>修复时间：2023．03<br>测试版本：<br>漏洞分析：<a target="_blank" rel="noopener" href="https://securitylab.github.com/advisories/GHSL-2023-005_Android/">简要分析</a><br>　　　　　<a target="_blank" rel="noopener" href="https://github.blog/2023-04-06-pwning-pixel-6-with-a-leftover-patch/">详细分析</a><br>poc&#x2F;exp:<a target="_blank" rel="noopener" href="https://github.com/github/securitylab/tree/main/SecurityExploits/Android/Mali/GHSL-2023-005">链接</a></p>
+<p>7 CVE-2022-20186<br>漏洞类型：UAF<br>修复时间：2023．03<br>测试版本：<br>漏洞分析：<br>　　　　　<a target="_blank" rel="noopener" href="https://github.blog/2022-07-27-corrupting-memory-without-memory-corruption/">详细分析</a><br>poc&#x2F;exp:<a target="_blank" rel="noopener" href="https://github.com/github/securitylab/tree/main/SecurityExploits/Android/Mali/CVE_2022_20186">链接</a></p>
+<p>8 CVE-2022-22706 &amp; CVE-2021-39793<br>漏洞类型：只读页面可被修改为可写<br>修复时间：2023．03<br>测试版本：<br>漏洞分析：<br>　　　　　<a target="_blank" rel="noopener" href="https://googleprojectzero.github.io/0days-in-the-wild//0day-RCAs/2021/CVE-2021-39793.html">简要分析</a></p>
+<p>9 CVE-2022-33917<br>漏洞类型：UAF<br>修复时间：2023．03<br>测试版本：<br>漏洞分析：<br>　　　　　<a target="_blank" rel="noopener" href="https://bugs.chromium.org/p/project-zero/issues/detail?id=2325">简要分析</a><br>poc&#x2F;exp:<a target="_blank" rel="noopener" href="https://bugs.chromium.org/p/project-zero/issues/detail?id=2325">链接</a><br>        <a target="_blank" rel="noopener" href="https://packetstormsecurity.com/files/168147/Arm-Mali-CSF-VMA-Split-Mishandling.html">链接２</a></p>
+<p>10 CVE-2022-36449 –1<br>漏洞类型：UAF<br>修复时间：2023．03<br>测试版本：<br>漏洞分析：<br>　　　　　<a target="_blank" rel="noopener" href="https://bugs.chromium.org/p/project-zero/issues/detail?id=2327">简要分析</a><br>poc&#x2F;exp:<a target="_blank" rel="noopener" href="https://bugs.chromium.org/p/project-zero/issues/detail?id=2327">链接</a><br>        <a target="_blank" rel="noopener" href="https://packetstormsecurity.com/files/168431/Arm-Mali-Released-Buffer-Use-After-Free.html">链接２</a></p>
+<p>11 CVE-2022-36449 –2<br>漏洞类型：UAF<br>修复时间：2023．03<br>测试版本：<br>漏洞分析：<br>　　　　　<a target="_blank" rel="noopener" href="https://bugs.chromium.org/p/project-zero/issues/detail?id=2331">简要分析</a><br>poc&#x2F;exp:<a target="_blank" rel="noopener" href="https://bugs.chromium.org/p/project-zero/issues/detail?id=2331">链接</a><br>        <a target="_blank" rel="noopener" href="https://packetstormsecurity.com/files/168432/Arm-Mali-Physical-Address-Exposure.html">链接２</a></p>
+<p>12 CVE-2022-36449 –3<br>漏洞类型：UAF<br>修复时间：2023．03<br>测试版本：<br>漏洞分析：<br>　　　　　<a target="_blank" rel="noopener" href="https://bugs.chromium.org/p/project-zero/issues/detail?id=2333">简要分析</a><br>poc&#x2F;exp:<a target="_blank" rel="noopener" href="https://bugs.chromium.org/p/project-zero/issues/detail?id=2333">链接</a><br>        <a target="_blank" rel="noopener" href="https://packetstormsecurity.com/files/168433/Arm-Mali-Race-Condition.html">链接２</a></p>
+<p>13 CVE-2022-36449 –4<br>漏洞类型：UAF<br>修复时间：2023．03<br>测试版本：<br>漏洞分析：<br>　　　　　<a target="_blank" rel="noopener" href="https://bugs.chromium.org/p/project-zero/issues/detail?id=2334">简要分析</a><br>poc&#x2F;exp:<a target="_blank" rel="noopener" href="https://bugs.chromium.org/p/project-zero/issues/detail?id=2334">链接</a><br>        <a target="_blank" rel="noopener" href="https://packetstormsecurity.com/files/168434/Arm-Mali-CSF-Missing-Buffer-Size-Check.html">链接２</a></p>
+<p>14 CVE-2023-5427<br>漏洞类型：UAF<br>修复时间：2024．01<br>测试版本：<br>漏洞分析：<br>　　　　　<a target="_blank" rel="noopener" href="https://packetstormsecurity.com/files/176029/ARM-Mali-r44p0-Use-After-Free.html">简要分析</a><br>poc&#x2F;exp:<a target="_blank" rel="noopener" href="https://packetstormsecurity.com/files/176029/ARM-Mali-r44p0-Use-After-Free.html">链接</a></p>
+<p>15 无CVE编号<br>漏洞类型：UAF<br>修复时间：2024．01<br>测试版本：<br>漏洞分析：<br>　　　　　<a target="_blank" rel="noopener" href="https://bugs.chromium.org/p/project-zero/issues/detail?id=2373">简要分析</a><br>poc&#x2F;exp:<a target="_blank" rel="noopener" href="https://packetstormsecurity.com/files/171135/Arm-Mali-CSF-kbase_kcpu_command_queue-Use-After-Free.html">链接</a></p>
+<p>16 CVE-2023-48409<br>漏洞类型：UAF<br>修复时间：2023．12<br>测试版本：Pixel 8 Pro: google&#x2F;husky&#x2F;husky:14&#x2F;UD1A.231105.004&#x2F;11010374:user&#x2F;release-keys<br>        Pixel 7 Pro: google&#x2F;cheetah&#x2F;cheetah:14&#x2F;UP1A.231105.003&#x2F;11010452:user&#x2F;release-keys<br>漏洞分析：<br>　　　　　<a target="_blank" rel="noopener" href="https://github.com/0x36/Pixel_GPU_Exploit">简要分析</a><br>poc&#x2F;exp:<a target="_blank" rel="noopener" href="https://github.com/0x36/Pixel_GPU_Exploit">链接</a></p>
 
     </div>
 
@@ -286,7 +299,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://lengshuangfei.top/2023/04/19/signature-bypass/" title="签名校验绕过漏洞">https://lengshuangfei.top/2023/04/19/signature-bypass/</a>
+    <a href="https://lengshuangfei.top/2024/04/22/arm-mali-cve/" title="ARM Mali驱动的历史漏洞">https://lengshuangfei.top/2024/04/22/arm-mali-cve/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -297,8 +310,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/WinVerifyTrust/" rel="tag"># WinVerifyTrust</a>
-              <a href="/tags/%E7%BB%95%E8%BF%87/" rel="tag"># 绕过</a>
+              <a href="/tags/GPU-exploit/" rel="tag"># GPU exploit</a>
+              <a href="/tags/ARM-Mali/" rel="tag"># ARM Mali</a>
           </div>
 
         
@@ -306,11 +319,11 @@
 
         
     <div class="post-nav">
-      <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/2023/04/23/windows-driver-security-sal/" rel="next" title="不安全的Windows驱动配置">
-      不安全的Windows驱动配置 <i class="fa fa-chevron-right"></i>
+    <a href="/2024/04/09/how-to-reproduce-pixel-gpu-exploit/" rel="prev" title="关于Pixel手机GPU漏洞CVE-2023-48409的利用说明">
+      <i class="fa fa-chevron-left"></i> 关于Pixel手机GPU漏洞CVE-2023-48409的利用说明
     </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -370,7 +383,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%A5%E5%85%B7%E4%BE%9D%E8%B5%96"><span class="nav-number">1.</span> <span class="nav-text">工具依赖</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%9F%E6%88%90%E8%87%AA%E7%AD%BE%E5%90%8D%E7%9A%84%E6%A0%B9%E8%AF%81%E4%B9%A6"><span class="nav-number">2.</span> <span class="nav-text">生成自签名的根证书</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BAspc%E6%96%87%E4%BB%B6"><span class="nav-number">3.</span> <span class="nav-text">创建spc文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%86%E5%85%AC%E9%92%A5%E5%92%8C%E7%A7%81%E9%92%A5%E5%90%88%E5%B9%B6%E6%88%90%E4%B8%80%E4%B8%AApfx%E6%A0%BC%E5%BC%8F%E5%AF%B9s%E8%AF%81%E4%B9%A6%E6%96%87%E4%BB%B6"><span class="nav-number">4.</span> <span class="nav-text">将公钥和私钥合并成一个pfx格式对s证书文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AD%BE%E7%BD%B2%E7%9B%AE%E6%A0%87%E6%96%87%E4%BB%B6"><span class="nav-number">5.</span> <span class="nav-text">签署目标文件</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#ARM-Mali%E4%B8%80%E4%BA%9B%E8%83%8C%E6%99%AF%E7%9F%A5%E8%AF%86"><span class="nav-number">1.</span> <span class="nav-text">ARM Mali一些背景知识</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ARM-Mali-%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F%E4%B8%8B%E8%BD%BD"><span class="nav-number">2.</span> <span class="nav-text">ARM Mali　驱动程序下载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ARM-Mali%E5%8E%86%E5%8F%B2%E6%BC%8F%E6%B4%9E"><span class="nav-number">3.</span> <span class="nav-text">ARM Mali历史漏洞</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -541,7 +554,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'Securee.github.io',
       owner       : 'Securee',
       admin       : ['Securee'],
-      id          : 'abb6db392313222030b3964da8b72c4d',
+      id          : '4c89bf8cda78d20420536dbe66a2c8a6',
         language: 'zh-CN',
       distractionFreeMode: true
     });
