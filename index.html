@@ -186,6 +186,96 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2024/04/29/blog-to-keep-following/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="冷霜飞">
+      <meta itemprop="description" content="秋阴不敌霜飞晚，留得残荷听雨声">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="冷霜飞">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/04/29/blog-to-keep-following/" class="post-title-link" itemprop="url">收藏一些关于漏洞分析，挖掘以及利用的博客--持续更新</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2024-04-29 08:50:24 / 修改时间：11:09:45" itemprop="dateCreated datePublished" datetime="2024-04-29T08:50:24+08:00">2024-04-29</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E7%A0%94%E7%A9%B6/" itemprop="url" rel="index"><span itemprop="name">漏洞研究</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>474</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="关于这篇博客的说明"><a href="#关于这篇博客的说明" class="headerlink" title="关于这篇博客的说明"></a>关于这篇博客的说明</h2><p>平时在研究漏洞分析，挖掘以及利用过程中，经常会遇到一些有用的博客，浏览器的收藏功能过于简单，这里单独使用一篇博客来记录．<br>这里，仅关注三个平台：Windows,Linux,Android．</p>
+<h2 id="Windows平台"><a href="#Windows平台" class="headerlink" title="Windows平台"></a>Windows平台</h2><p>1 Windows 11修改引入的内核double-fetch<a target="_blank" rel="noopener" href="https://exploits.forsale/24h2-nt-exploit/">漏洞</a><br>发表时间：2024.04.26<br>比较详细分析了Windows内核两个修改引入的double-fetch漏洞，并提供了提权的EXP,提权利用过程中如何提权，以及绕过内核地址随机技术值得借鉴．</p>
+<p>2 VirtualBox任意文件删除和任意文件移动导致的本地提权LPE–CVE-2024-21111<a target="_blank" rel="noopener" href="https://github.com/mansk1es/CVE-2024-21111">漏洞</a><br>发表时间：2024.04.16<br>利用了符号连接的利用技术，这里收藏是为了后续可以借鉴提权的EXP.<br>其它类似漏洞的还有：</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://www.zerodayinitiative.com/blog/2022/3/16/abusing-arbitrary-file-deletes-to-escalate-privilege-and-other-great-tricks">Zero Day的博客</a></li>
+<li>Windows Backup Service 本地提权漏洞分析<a target="_blank" rel="noopener" href="https://www.zoemurmure.top/posts/cve_2023_21752_1">CVE-2023-21752</a></li>
+<li>任意目录删除导致的本地提权<a target="_blank" rel="noopener" href="https://secret.club/2020/04/23/directory-deletion-shell.html">漏洞</a></li>
+</ol>
+<p>当然，Clément Lavoillotte的<a target="_blank" rel="noopener" href="https://offsec.almond.consulting/intro-to-file-operation-abuse-on-Windows.html">博客</a>以及他的<a target="_blank" rel="noopener" href="https://troopers.de/downloads/troopers19/TROOPERS19_AD_Abusing_privileged_file_operations.pdf">演讲稿</a>也是学习和掌握这类漏洞的好材料．</p>
+<h2 id="Linux平台"><a href="#Linux平台" class="headerlink" title="Linux平台"></a>Linux平台</h2><h2 id="Android平台"><a href="#Android平台" class="headerlink" title="Android平台"></a>Android平台</h2>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2024/04/22/arm-mali-cve/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1192,103 +1282,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2023/06/12/grantUriPermission-attack/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="冷霜飞">
-      <meta itemprop="description" content="秋阴不敌霜飞晚，留得残荷听雨声">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="冷霜飞">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/06/12/grantUriPermission-attack/" class="post-title-link" itemprop="url">不恰当动态授权grantUriPermission导致的漏洞</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2023-06-12 14:35:27" itemprop="dateCreated datePublished" datetime="2023-06-12T14:35:27+08:00">2023-06-12</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-06-13 16:40:50" itemprop="dateModified" datetime="2023-06-13T16:40:50+08:00">2023-06-13</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">漏洞模式</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>1.2k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="Android的应用沙盒"><a href="#Android的应用沙盒" class="headerlink" title="Android的应用沙盒"></a>Android的应用沙盒</h2><p>在Android操作系统中，每一个应用都会在安装的时候分配一个独一无二的用户ID–UID，然后每个应用都会在各自的进程中运行。Android利用分配给应用的UID设置一个内核级别的应用沙盒（所以，如果能获得内核权限，应用沙盒机制自然就失效了），内核利用Linux安全机制（比如DAC，MAC）对应用和系统之间进行保护，默认应用之间不能相互访问。<br>详细可以看Android官网上的<a target="_blank" rel="noopener" href="https://source.android.com/docs/security/app-sandbox?hl=zh-cn">介绍</a></p>
-<img src="/2023/06/12/grantUriPermission-attack/android-sandbox.png" class title="android-sandbox">
-
-<h2 id="Android应用之间的文件共享"><a href="#Android应用之间的文件共享" class="headerlink" title="Android应用之间的文件共享"></a>Android应用之间的文件共享</h2><p>但，毫无疑问，应用之间必然存在文件共享访问的需求。比如A应用请求图库打开一张图片，请求播放器播放一个视频文件等等。在这种情况下，授权应用需要将文件–通常对应一个Uri的读权限或者写权限授予被授权的应用。根据最小授权的原则，授权应用应该仅授予目标应用相应的权限（读或者写），并且在事务完成后取消授权。<br>因此，Android在安全最佳实践中，提供的建议<a target="_blank" rel="noopener" href="https://developer.android.com/topic/security/best-practices#java">如下</a>:</p>
-<img src="/2023/06/12/grantUriPermission-attack/granturipermission-best_practices.png" class title="android-grantUriPermission-best-practices">
-<p>原因是通过Intent的addFlag设置的读写权限属于一次性授权，事务完成后授权自动取消，从而保证了最小授权。</p>
-<h2 id="grantUriPermission漏洞模式"><a href="#grantUriPermission漏洞模式" class="headerlink" title="grantUriPermission漏洞模式"></a>grantUriPermission漏洞模式</h2><p>与使用Intent的addFlags一次性授权相对应的是使用<a target="_blank" rel="noopener" href="https://developer.android.com/reference/android/content/Context#grantUriPermission(java.lang.String,%20android.net.Uri,%20int)">grantUriPermission</a>函数进行持久授权</p>
-<img src="/2023/06/12/grantUriPermission-attack/android-grantUriPermission.png" class title="android-grantUriPermission">
-<p>第一个参数是被授权的应用的包名，第二个参数是被授权的文件的Uri，第三个参数是具体的授权方式：读，写，同时同时具有读写权限。<br>从函数的参数可以看到，如果攻击者可以控制第一个参数，那么就可以获得了文件的读写权限。这可能包括以下几种情况：<br>1）包名是从外部可被攻击者控制的输入传入，比如导出的组件（四大组件），webView等<br>   进一步可能存在两种情况：1是包名完全从外部可控输入，2是包名的不完整校验导致绕过。比如使用startWith，endWith，contain等不安全的字符校验。<br>2）授权的包名当前系统中不存在，因此攻击者可以伪造该包名，从而获得文件的读写权限。<br>3）最常见的一种，就是通过隐式Intent查询当前系统满足能处理该Intent的包，然后授予这些应用授权。<br>   <img src="/2023/06/12/grantUriPermission-attack/grantUriPermission-bug-model.png" class title="grantUriPermission-bug"><br>   这种授权方式，明显属于授权范围过大。攻击者只需要定义一个Activity，然后Intent-filter设置Action是android.intent.action.SEND就可以获得文件的读写权限。<br>   虽然，这种情况下，通常需要用户交互，而且Uri获取的确困难，因此CVSS打分通常无法达到7.0以上，仅属于一般问题。但是，如果Uri是有规律，可预测的（哪怕是遍历沙盒的文件），CVSS打分也将达到7.0以上，属于严重安全问题。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>对于Android开发而言，不建议使用grantUriPermission进行授权，推荐使用Intent的addFlags进行一次性授权，防止出现授权过大的安全风险。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1360,20 +1353,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-count">19</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">8</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-count">31</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1421,7 +1414,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">46k</span>
+    <span title="站点总字数">47k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>

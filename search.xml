@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>收藏一些关于漏洞分析，挖掘以及利用的博客--持续更新</title>
+      <link href="/2024/04/29/blog-to-keep-following/"/>
+      <url>/2024/04/29/blog-to-keep-following/</url>
+      
+        <content type="html"><![CDATA[<h2 id="关于这篇博客的说明"><a href="#关于这篇博客的说明" class="headerlink" title="关于这篇博客的说明"></a>关于这篇博客的说明</h2><p>平时在研究漏洞分析，挖掘以及利用过程中，经常会遇到一些有用的博客，浏览器的收藏功能过于简单，这里单独使用一篇博客来记录．<br>这里，仅关注三个平台：Windows,Linux,Android．</p><h2 id="Windows平台"><a href="#Windows平台" class="headerlink" title="Windows平台"></a>Windows平台</h2><p>1 Windows 11修改引入的内核double-fetch<a href="https://exploits.forsale/24h2-nt-exploit/">漏洞</a><br>发表时间：2024.04.26<br>比较详细分析了Windows内核两个修改引入的double-fetch漏洞，并提供了提权的EXP,提权利用过程中如何提权，以及绕过内核地址随机技术值得借鉴．</p><p>2 VirtualBox任意文件删除和任意文件移动导致的本地提权LPE–CVE-2024-21111<a href="https://github.com/mansk1es/CVE-2024-21111">漏洞</a><br>发表时间：2024.04.16<br>利用了符号连接的利用技术，这里收藏是为了后续可以借鉴提权的EXP.<br>其它类似漏洞的还有：</p><ol><li><a href="https://www.zerodayinitiative.com/blog/2022/3/16/abusing-arbitrary-file-deletes-to-escalate-privilege-and-other-great-tricks">Zero Day的博客</a></li><li>Windows Backup Service 本地提权漏洞分析<a href="https://www.zoemurmure.top/posts/cve_2023_21752_1">CVE-2023-21752</a></li><li>任意目录删除导致的本地提权<a href="https://secret.club/2020/04/23/directory-deletion-shell.html">漏洞</a></li></ol><p>当然，Clément Lavoillotte的<a href="https://offsec.almond.consulting/intro-to-file-operation-abuse-on-Windows.html">博客</a>以及他的<a href="https://troopers.de/downloads/troopers19/TROOPERS19_AD_Abusing_privileged_file_operations.pdf">演讲稿</a>也是学习和掌握这类漏洞的好材料．</p><h2 id="Linux平台"><a href="#Linux平台" class="headerlink" title="Linux平台"></a>Linux平台</h2><h2 id="Android平台"><a href="#Android平台" class="headerlink" title="Android平台"></a>Android平台</h2>]]></content>
+      
+      
+      <categories>
+          
+          <category> 漏洞研究 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 漏洞利用 </tag>
+            
+            <tag> 博客 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>ARM Mali驱动的历史漏洞</title>
       <link href="/2024/04/22/arm-mali-cve/"/>
       <url>/2024/04/22/arm-mali-cve/</url>
