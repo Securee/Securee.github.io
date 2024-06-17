@@ -20,25 +20,20 @@
     var CONFIG = {"hostname":"lengshuangfei.top","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="Android的应用沙盒在Android操作系统中，每一个应用都会在安装的时候分配一个独一无二的用户ID–UID，然后每个应用都会在各自的进程中运行。Android利用分配给应用的UID设置一个内核级别的应用沙盒（所以，如果能获得内核权限，应用沙盒机制自然就失效了），内核利用Linux安全机制（比如DAC，MAC）对应用和系统之间进行保护，默认应用之间不能相互访问。详细可以看Android官网上的">
+  <meta name="description" content="工具背景在寻找Android漏洞的过程中，为了检查某一个漏洞类型是否在其它应用也存在，通常需要逐个反编译应用然后再进行搜索漏洞模式，这里发现可以通过jadx支持命令行方式进行反编译，所以写了一个批量反编译的脚本 工具使用首先，得将jadx加入环境变量PATH，其次，使用之前博客提供的一键拉取apk&#x2F;jar的脚本，将apk&#x2F;jar拉u取到本地，最后执行以下脚本． 12345678">
 <meta property="og:type" content="article">
-<meta property="og:title" content="不恰当动态授权grantUriPermission导致的漏洞">
-<meta property="og:url" content="https://lengshuangfei.top/2023/06/12/grantUriPermission-attack/index.html">
+<meta property="og:title" content="基于jadx批量反编译apks或者jars">
+<meta property="og:url" content="https://lengshuangfei.top/2024/06/17/decompile-apks-or-jars-by-jadx/index.html">
 <meta property="og:site_name" content="冷霜飞">
-<meta property="og:description" content="Android的应用沙盒在Android操作系统中，每一个应用都会在安装的时候分配一个独一无二的用户ID–UID，然后每个应用都会在各自的进程中运行。Android利用分配给应用的UID设置一个内核级别的应用沙盒（所以，如果能获得内核权限，应用沙盒机制自然就失效了），内核利用Linux安全机制（比如DAC，MAC）对应用和系统之间进行保护，默认应用之间不能相互访问。详细可以看Android官网上的">
+<meta property="og:description" content="工具背景在寻找Android漏洞的过程中，为了检查某一个漏洞类型是否在其它应用也存在，通常需要逐个反编译应用然后再进行搜索漏洞模式，这里发现可以通过jadx支持命令行方式进行反编译，所以写了一个批量反编译的脚本 工具使用首先，得将jadx加入环境变量PATH，其次，使用之前博客提供的一键拉取apk&#x2F;jar的脚本，将apk&#x2F;jar拉u取到本地，最后执行以下脚本． 12345678">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://lengshuangfei.top/2023/06/12/grantUriPermission-attack/android-sandbox.png">
-<meta property="og:image" content="https://lengshuangfei.top/2023/06/12/grantUriPermission-attack/granturipermission-best_practices.png">
-<meta property="og:image" content="https://lengshuangfei.top/2023/06/12/grantUriPermission-attack/android-grantUriPermission.png">
-<meta property="og:image" content="https://lengshuangfei.top/2023/06/12/grantUriPermission-attack/grantUriPermission-bug-model.png">
-<meta property="article:published_time" content="2023-06-12T06:35:27.000Z">
-<meta property="article:modified_time" content="2023-06-13T08:40:50.342Z">
+<meta property="article:published_time" content="2024-06-17T03:51:23.000Z">
+<meta property="article:modified_time" content="2024-06-17T05:59:15.836Z">
 <meta property="article:author" content="冷霜飞">
-<meta property="article:tag" content="grantUriPermission">
+<meta property="article:tag" content="静态分析">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://lengshuangfei.top/2023/06/12/grantUriPermission-attack/android-sandbox.png">
 
-<link rel="canonical" href="https://lengshuangfei.top/2023/06/12/grantUriPermission-attack/">
+<link rel="canonical" href="https://lengshuangfei.top/2024/06/17/decompile-apks-or-jars-by-jadx/">
 
 
 <script id="page-configurations">
@@ -51,7 +46,7 @@
   };
 </script>
 
-  <title>不恰当动态授权grantUriPermission导致的漏洞 | 冷霜飞</title>
+  <title>基于jadx批量反编译apks或者jars | 冷霜飞</title>
   
 
 
@@ -195,7 +190,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2023/06/12/grantUriPermission-attack/">
+    <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2024/06/17/decompile-apks-or-jars-by-jadx/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -208,7 +203,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          不恰当动态授权grantUriPermission导致的漏洞
+          基于jadx批量反编译apks或者jars
         </h1>
 
         <div class="post-meta">
@@ -217,23 +212,17 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2023-06-12 14:35:27" itemprop="dateCreated datePublished" datetime="2023-06-12T14:35:27+08:00">2023-06-12</time>
+              <time title="创建时间：2024-06-17 11:51:23 / 修改时间：13:59:15" itemprop="dateCreated datePublished" datetime="2024-06-17T11:51:23+08:00">2024-06-17</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-06-13 16:40:50" itemprop="dateModified" datetime="2023-06-13T16:40:50+08:00">2023-06-13</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">漏洞模式</span></a>
+                  <a href="/categories/%E5%B7%A5%E5%85%B7%E8%84%9A%E6%9C%AC/" itemprop="url" rel="index"><span itemprop="name">工具脚本</span></a>
                 </span>
             </span>
 
@@ -250,14 +239,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>1.2k</span>
+              <span>1.9k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
+              <span>2 分钟</span>
             </span>
 
         </div>
@@ -269,16 +258,11 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="Android的应用沙盒"><a href="#Android的应用沙盒" class="headerlink" title="Android的应用沙盒"></a>Android的应用沙盒</h2><p>在Android操作系统中，每一个应用都会在安装的时候分配一个独一无二的用户ID–UID，然后每个应用都会在各自的进程中运行。Android利用分配给应用的UID设置一个内核级别的应用沙盒（所以，如果能获得内核权限，应用沙盒机制自然就失效了），内核利用Linux安全机制（比如DAC，MAC）对应用和系统之间进行保护，默认应用之间不能相互访问。<br>详细可以看Android官网上的<a target="_blank" rel="noopener" href="https://source.android.com/docs/security/app-sandbox?hl=zh-cn">介绍</a></p>
-<img src="/2023/06/12/grantUriPermission-attack/android-sandbox.png" class title="android-sandbox">
+        <h2 id="工具背景"><a href="#工具背景" class="headerlink" title="工具背景"></a>工具背景</h2><p>在寻找Android漏洞的过程中，为了检查某一个漏洞类型是否在其它应用也存在，通常需要逐个反编译应用然后再进行搜索漏洞模式，这里发现可以通过jadx支持命令行方式进行反编译，所以写了一个批量反编译的脚本</p>
+<h2 id="工具使用"><a href="#工具使用" class="headerlink" title="工具使用"></a>工具使用</h2><p>首先，得将jadx加入环境变量PATH，其次，使用之前博客提供的一键拉取apk&#x2F;jar的脚本，将apk&#x2F;jar拉u取到本地，最后执行以下脚本．</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> subprocess</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="keyword">global</span> decompiled_output_path</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">find_all_apks_or_jars</span>(<span class="params">input_dir</span>):</span><br><span class="line">    <span class="keyword">for</span> root, ds, files <span class="keyword">in</span> os.walk(input_dir):</span><br><span class="line">        <span class="keyword">for</span> file <span class="keyword">in</span> files:</span><br><span class="line">            <span class="keyword">if</span> file.endswith(<span class="string">&#x27;.apk&#x27;</span>) <span class="keyword">or</span> file.endswith(<span class="string">&#x27;.jar&#x27;</span>):</span><br><span class="line">                apk_or_jar_path = os.path.join(root,file)</span><br><span class="line">                <span class="keyword">yield</span> apk_or_jar_path</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">decompile_by_jadx</span>(<span class="params">apk_or_jar_path</span>):</span><br><span class="line">    <span class="keyword">global</span> decompiled_output_path</span><br><span class="line">    dir_name, full_file_name = os.path.split(apk_or_jar_path)</span><br><span class="line">    file_name, file_ext = os.path.splitext(full_file_name)</span><br><span class="line">    <span class="keyword">if</span> file_ext == <span class="string">&quot;.apk&quot;</span> <span class="keyword">or</span> file_ext == <span class="string">&quot;.jar&quot;</span>:</span><br><span class="line">        out_directory = decompiled_output_path + <span class="string">&quot;/&quot;</span> + file_name</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(out_directory):</span><br><span class="line">            os.makedirs(out_directory)</span><br><span class="line">        cmd = <span class="string">&quot;jadx -ds &quot;</span> + out_directory + <span class="string">&quot; &quot;</span> + apk_or_jar_path</span><br><span class="line">        result = subprocess.Popen(cmd, shell=<span class="literal">True</span>, stdout=subprocess.PIPE,text=<span class="literal">True</span>).communicate()</span><br><span class="line">        <span class="built_in">print</span>(result)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">decompile_enter</span>():</span><br><span class="line">    <span class="keyword">global</span> decompiled_output_path</span><br><span class="line">    parser =argparse.ArgumentParser(description=<span class="string">&quot;This script is used to decompile apks or jars in a directory&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&quot;-d&quot;</span>, <span class="string">&quot;--dir&quot;</span>, required=<span class="literal">True</span>, <span class="built_in">type</span>=<span class="built_in">str</span>, <span class="built_in">help</span>=<span class="string">&quot;Tell me the directory of apks or jars to be compiled!&quot;</span>)</span><br><span class="line">    args = parser.parse_args()</span><br><span class="line">    input_dir = args.<span class="built_in">dir</span></span><br><span class="line">    decompiled_output_path = input_dir + <span class="string">&quot;/jadx_decompiled_output&quot;</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(decompiled_output_path):</span><br><span class="line">        os.makedirs(decompiled_output_path)</span><br><span class="line">    apks_or_jars = find_all_apks_or_jars(decompiled_output_path)</span><br><span class="line">    <span class="keyword">for</span> file <span class="keyword">in</span> apks_or_jars:</span><br><span class="line">        decompile_by_jadx(file)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    start_time = time.time()</span><br><span class="line">    decompile_enter()</span><br><span class="line">    end_time = time.time()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;All apks or jars decompiled, time used is: &quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="built_in">str</span>(end_time - start_time) + <span class="string">&quot; s&quot;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
-<h2 id="Android应用之间的文件共享"><a href="#Android应用之间的文件共享" class="headerlink" title="Android应用之间的文件共享"></a>Android应用之间的文件共享</h2><p>但，毫无疑问，应用之间必然存在文件共享访问的需求。比如A应用请求图库打开一张图片，请求播放器播放一个视频文件等等。在这种情况下，授权应用需要将文件–通常对应一个Uri的读权限或者写权限授予被授权的应用。根据最小授权的原则，授权应用应该仅授予目标应用相应的权限（读或者写），并且在事务完成后取消授权。<br>因此，Android在安全最佳实践中，提供的建议<a target="_blank" rel="noopener" href="https://developer.android.com/topic/security/best-practices#java">如下</a>:</p>
-<img src="/2023/06/12/grantUriPermission-attack/granturipermission-best_practices.png" class title="android-grantUriPermission-best-practices">
-<p>原因是通过Intent的addFlag设置的读写权限属于一次性授权，事务完成后授权自动取消，从而保证了最小授权。</p>
-<h2 id="grantUriPermission漏洞模式"><a href="#grantUriPermission漏洞模式" class="headerlink" title="grantUriPermission漏洞模式"></a>grantUriPermission漏洞模式</h2><p>与使用Intent的addFlags一次性授权相对应的是使用<a target="_blank" rel="noopener" href="https://developer.android.com/reference/android/content/Context#grantUriPermission(java.lang.String,%20android.net.Uri,%20int)">grantUriPermission</a>函数进行持久授权</p>
-<img src="/2023/06/12/grantUriPermission-attack/android-grantUriPermission.png" class title="android-grantUriPermission">
-<p>第一个参数是被授权的应用的包名，第二个参数是被授权的文件的Uri，第三个参数是具体的授权方式：读，写，同时同时具有读写权限。<br>从函数的参数可以看到，如果攻击者可以控制第一个参数，那么就可以获得了文件的读写权限。这可能包括以下几种情况：<br>1）包名是从外部可被攻击者控制的输入传入，比如导出的组件（四大组件），webView等<br>   进一步可能存在两种情况：1是包名完全从外部可控输入，2是包名的不完整校验导致绕过。比如使用startWith，endWith，contain等不安全的字符校验。<br>2）授权的包名当前系统中不存在，因此攻击者可以伪造该包名，从而获得文件的读写权限。<br>3）最常见的一种，就是通过隐式Intent查询当前系统满足能处理该Intent的包，然后授予这些应用授权。<br>   <img src="/2023/06/12/grantUriPermission-attack/grantUriPermission-bug-model.png" class title="grantUriPermission-bug"><br>   这种授权方式，明显属于授权范围过大。攻击者只需要定义一个Activity，然后Intent-filter设置Action是android.intent.action.SEND就可以获得文件的读写权限。<br>   虽然，这种情况下，通常需要用户交互，而且Uri获取的确困难，因此CVSS打分通常无法达到7.0以上，仅属于一般问题。但是，如果Uri是有规律，可预测的（哪怕是遍历沙盒的文件），CVSS打分也将达到7.0以上，属于严重安全问题。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>对于Android开发而言，不建议使用grantUriPermission进行授权，推荐使用Intent的addFlags进行一次性授权，防止出现授权过大的安全风险。</p>
+<p>不过，jadx反编译的效果不是很好，有些函数反编译不出来．但绝大部分还是可以反编译成功的．</p>
 
     </div>
 
@@ -294,7 +278,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://lengshuangfei.top/2023/06/12/grantUriPermission-attack/" title="不恰当动态授权grantUriPermission导致的漏洞">https://lengshuangfei.top/2023/06/12/grantUriPermission-attack/</a>
+    <a href="https://lengshuangfei.top/2024/06/17/decompile-apks-or-jars-by-jadx/" title="基于jadx批量反编译apks或者jars">https://lengshuangfei.top/2024/06/17/decompile-apks-or-jars-by-jadx/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -305,7 +289,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/grantUriPermission/" rel="tag"># grantUriPermission</a>
+              <a href="/tags/%E9%9D%99%E6%80%81%E5%88%86%E6%9E%90/" rel="tag"># 静态分析</a>
           </div>
 
         
@@ -314,13 +298,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2023/05/31/root-pixel7/" rel="prev" title="pixel 7/pro的root过程">
-      <i class="fa fa-chevron-left"></i> pixel 7/pro的root过程
+    <a href="/2024/04/29/blog-to-keep-following/" rel="prev" title="收藏一些关于漏洞分析，挖掘以及利用的博客--持续更新">
+      <i class="fa fa-chevron-left"></i> 收藏一些关于漏洞分析，挖掘以及利用的博客--持续更新
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2023/06/16/mariana-trench-build/" rel="next" title="源码编译mariana-trench">
-      源码编译mariana-trench <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -380,7 +361,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Android%E7%9A%84%E5%BA%94%E7%94%A8%E6%B2%99%E7%9B%92"><span class="nav-number">1.</span> <span class="nav-text">Android的应用沙盒</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Android%E5%BA%94%E7%94%A8%E4%B9%8B%E9%97%B4%E7%9A%84%E6%96%87%E4%BB%B6%E5%85%B1%E4%BA%AB"><span class="nav-number">2.</span> <span class="nav-text">Android应用之间的文件共享</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#grantUriPermission%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.</span> <span class="nav-text">grantUriPermission漏洞模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%A5%E5%85%B7%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">工具背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8"><span class="nav-number">2.</span> <span class="nav-text">工具使用</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -551,7 +532,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'Securee.github.io',
       owner       : 'Securee',
       admin       : ['Securee'],
-      id          : '658a010d8c540a64532920773809e6cf',
+      id          : 'ae70b6b4d2a75a469e9320f52cc40e5e',
         language: 'zh-CN',
       distractionFreeMode: true
     });

@@ -186,6 +186,150 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2023/06/16/mariana-trench-build/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="冷霜飞">
+      <meta itemprop="description" content="秋阴不敌霜飞晚，留得残荷听雨声">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="冷霜飞">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/06/16/mariana-trench-build/" class="post-title-link" itemprop="url">源码编译mariana-trench</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-06-16 08:49:30" itemprop="dateCreated datePublished" datetime="2023-06-16T08:49:30+08:00">2023-06-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-06-25 10:30:51" itemprop="dateModified" datetime="2023-06-25T10:30:51+08:00">2023-06-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B7%A5%E5%85%B7%E8%84%9A%E6%9C%AC/" itemprop="url" rel="index"><span itemprop="name">工具脚本</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="关于mariana-trench静态分析工具"><a href="#关于mariana-trench静态分析工具" class="headerlink" title="关于mariana trench静态分析工具"></a>关于mariana trench静态分析工具</h2><p>mariana trench是facebook，也即是现在的Meta公司开源的一款用于Android的静态分析工具，支持有源码和无源码两种方式的分析，详细使用可以看官网的<a target="_blank" rel="noopener" href="https://mariana-tren.ch/">介绍</a>,源码在github上<a target="_blank" rel="noopener" href="https://github.com/facebook/mariana-trench">开源</a>.<br>其它同类的工具还有<a target="_blank" rel="noopener" href="https://github.com/MobSF/Mobile-Security-Framework-MobSF">Mobile-Security-Framework-MobSF</a>、<a target="_blank" rel="noopener" href="https://soot-oss.github.io/soot/">Soot</a>、<a target="_blank" rel="noopener" href="https://github.com/bytedance/appshark">appshark</a>、<a target="_blank" rel="noopener" href="https://github.com/WithSecureLabs/Jandroid">Jandroid</a>。<br>mariana trench在有源码的情况下，会比较明显指出漏洞所在的代码，无源码的情况下，通常需要更多的人工分析确认。与Soot、appshark、Jandroid一样，mariana trench最大的特点就是静态污点分析，通过预置和自定义的规则查找满足一定模式的漏洞。<br>经过一段时间的使用，mariana trench有3个比较明显的缺陷：<br>1）主要是基于源码（反编译后的）进行污点分析，但是对于漏洞模式是出现在manifest配置的漏洞则无法制定相应的规则;<br>2）与其它几款污点分析工具类似，也不支持对jar包进行分析，需要一些工具将jar转化为apk;<br>3）默认情况下，不支持对批量的apk进行分析，需要自行编写脚本进行批量分析apk。<br>此外，学习曲线也比较陡，需要充分理解规则里的各个字段的含义，否在即使知道了漏洞的模式，也不知道该怎么写规则。</p>
+<h2 id="源码编译"><a href="#源码编译" class="headerlink" title="源码编译"></a>源码编译</h2><p>事实上，如果只是想尝试或者简单地使用工具，并不需要源码编译生成工具，而只需简单地几条命令即可安装:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install python3 python3-pip python3-venv</span><br><span class="line">python3 -m venv ~/.venvs/mariana-trench</span><br><span class="line">source ~/.venvs/mariana-trench/bin/activate</span><br><span class="line">pip install mariana-trench</span><br><span class="line">pip install fb-sapp</span><br></pre></td></tr></table></figure>
+
+<p>但是如果想修改源码，获得更大的定制自由度，则有需要进行源码编译，同时，pypi上的版本跟不上github的更新也是一个原因。</p>
+<h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><p>推荐使用虚拟机，而且是ubuntu 20.04的虚拟机环境，这也是官方测试使用的环境，如果使用其它版本的ubuntu，可能会出现各种编译失败的错误，尤其是低版本的ubuntu。<br>自行使用Virtual Box或者VMware搭建ubuntu 20.04的虚拟机环境。<br>友情提醒：搭建好虚拟机环境后，立即做一个虚拟机镜像保存，不然后续安装了一大堆软件后，还是编译失败，要去定位是哪个软件包引起的话很耗费时间，直接还原镜像最快。</p>
+<h3 id="准备依赖的软件包"><a href="#准备依赖的软件包" class="headerlink" title="准备依赖的软件包"></a>准备依赖的软件包</h3><p>官方的指导文档可能是没有及时更新，如果按照官方的指导进行，很可能编译失败。<br>以下我的编译过程：<br>注意：在执行以下步骤之前，我的ubuntu已经安装了gcc&#x2F;g++ 10</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install gcc-10 g++-10</span><br></pre></td></tr></table></figure>
+
+<p>并将gcc 10作为默认的编译器。</p>
+<p>1、安装brew 工具，并更新</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/bin/bash -c &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)&quot;</span><br><span class="line">brew update</span><br><span class="line">brew upgrade</span><br></pre></td></tr></table></figure>
+
+<p>2、安装cmake zlib jsoncpp re2 googletest<br>官方的指导原本是：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">brew install cmake zlib boost jsoncpp re2</span><br><span class="line">brew install googletest --build-from-source # The package is currently broken.</span><br><span class="line">export CMAKE_PREFIX_PATH=/home/linuxbrew/.linuxbrew/opt/jsoncpp:/home/linuxbrew/.linuxbrew/opt/zlib</span><br></pre></td></tr></table></figure>
+
+<p>这里有两个坑，第一个是boost使用brew安装的话，后面在编译redex的时候会报以下错误：</p>
+<img src="/2023/06/16/mariana-trench-build/boost-error.png" class title="boost build error">
+<p>解决方法：<br>源码编译最新的boost，可以参考这个<a target="_blank" rel="noopener" href="https://blog.csdn.net/ccf19881030/article/details/114788682">博客</a><br>注意：1）都使用sudo切换到root执行 2）设置–eprefix&#x3D;&#x2F;usr<br>第二个坑是源码安装googletest，其实不必要，不需要指定 –build-from-source<br>所以在通过aptz安装boost之后，执行：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">brew install cmake zlib googletest jsoncpp re2</span><br><span class="line">export CMAKE_PREFIX_PATH=/home/linuxbrew/.linuxbrew/opt/jsoncpp:/home/linuxbrew/.linuxbrew/opt/zlib</span><br></pre></td></tr></table></figure>
+
+<p>3、源码编译fmt<br>随便找一个目录，然后</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/fmtlib/fmt.git</span><br><span class="line">git checkout 7.1.3</span><br><span class="line">mkdir fmt/build</span><br><span class="line">cd fmt/build</span><br><span class="line">cmake ..</span><br><span class="line">make</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
+
+<p>官方指导使用的是8.1.1,但是在编译的时候报了以下错误：</p>
+<img src="/2023/06/16/mariana-trench-build/fmt-error.png" class title="fmt build error">
+
+<h3 id="编译mariana-trench"><a href="#编译mariana-trench" class="headerlink" title="编译mariana trench"></a>编译mariana trench</h3><p>1、首先通过git下载最新的mariana trench源码：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/facebook/mariana-trench.git</span><br></pre></td></tr></table></figure>
+
+<p>2、编译mariana-trench依赖的redex<br>redex是facebooki开源的一个Android代码优化框架，而这里，mariana trench主要用该框架获取APK的代码调用图。<br>进入刚下载的mariana trench目录，并下载redex的a源码</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd mariana-trench</span><br><span class="line">git clone https://github.com/facebook/redex.git</span><br></pre></td></tr></table></figure>
+
+<p>设置redex的编译安装目录</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MT_INSTALL_DIRECTORY=&quot;$PWD/install&quot;</span><br></pre></td></tr></table></figure>
+
+<p>开始编译并安装redex：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cd redex</span><br><span class="line">mkdir build</span><br><span class="line">cd build</span><br><span class="line">cmake -DCMAKE_INSTALL_PREFIX=&quot;$MT_INSTALL_DIRECTORY&quot; ..</span><br><span class="line">make -j4</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<p>如果这一步没有问题，则可以开始编译mariana trench了，如果出现问题，一般是依赖不正确，可以尝试使用brew先卸载相应的包，然后使用apt安装。<br>比如re2,可以使用</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install libre2-dev</span><br></pre></td></tr></table></figure>
+
+<p>代替brew re2。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cd ../..  # 返回mariana trench的根目录</span><br><span class="line">mkdir build</span><br><span class="line">cd build</span><br><span class="line">cmake -DREDEX_ROOT=&quot;$MT_INSTALL_DIRECTORY&quot; -DCMAKE_INSTALL_PREFIX=&quot;$MT_INSTALL_DIRECTORY&quot; ..</span><br><span class="line">make -j4</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<h2 id="安装mariana-trench"><a href="#安装mariana-trench" class="headerlink" title="安装mariana trench"></a>安装mariana trench</h2><p>切换到mariana trench根目录，执行：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install python3-pip #如果还没有安装pip，请执行该命令</span><br><span class="line">python3 scripts/setup.py \</span><br><span class="line">  --binary &quot;$MT_INSTALL_DIRECTORY/bin/mariana-trench-binary&quot; \</span><br><span class="line">  --pyredex &quot;$MT_INSTALL_DIRECTORY/bin/pyredex&quot; \</span><br><span class="line">  install</span><br></pre></td></tr></table></figure>
+
+<p>执行完以上命令后，如果在任意目录下，执行mariana-trench –verison提上没有找打命令，请将当期用户目录：&#x2F;home&#x2F;%当前用户名%&#x2F;.local&#x2F;bin添加到PATH环境变量。</p>
+<h2 id="定制mariana-trench"><a href="#定制mariana-trench" class="headerlink" title="定制mariana trench"></a>定制mariana trench</h2><p>当定制了mariana trench的时候，发生源码更改，可以在build目录下，执行：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./mariana-trench --help</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>遇到问题解决问题不放弃，另外Google总算能给我们一些提示，同时，不要忘了在源码的issues上看看别人有没有遇到相同的问题。</p>
+<p>更新2023.06.19：<br>还有一种方法：使用最新的ubuntu 22.04版本，</p>
+<img src="/2023/06/16/mariana-trench-build/ubuntu_version.png" class title="ubuntu version">
+<p>然后按照官方的指导进行构建（fmt版本我没有试过8.1.1,而是使用7.1.3版本），也可以顺利构建mariana trench。<br>GLIBC的版本正好是2.35（ldd –version）。其它非2.35版本的GLIBC都可能会报各种找不到符号的链接错误。</p>
+<img src="/2023/06/16/mariana-trench-build/succ.png" class title="build succ">
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://lengshuangfei.top/2023/06/12/grantUriPermission-attack/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1170,7 +1314,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-count">20</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1231,12 +1375,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">47k</span>
+    <span title="站点总字数">48k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">42 分钟</span>
+    <span title="站点阅读时长">44 分钟</span>
 </div>
 
         
